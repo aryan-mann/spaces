@@ -3,7 +3,7 @@
 	import type { CityT, SpaceT } from '$lib/types';
 	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
 	const API_KEY = 'AIzaSyDXQ6Vhx0C6WV7xLQs0iVWMO_vLVJjGGhs';
-	import GMaps from '@googlemaps/js-api-loader';
+	import * as GMaps from '@googlemaps/js-api-loader';
 	import { afterUpdate, onMount } from 'svelte';
 
 	const { Loader } = GMaps;
