@@ -6,15 +6,13 @@
 	import * as GMaps from '@googlemaps/js-api-loader';
 	import { afterUpdate, onMount } from 'svelte';
 
-	const { Loader } = GMaps;
-
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
 	export let city: CityT | null = null;
 	export let mapLoaded: boolean = false;
 	export let onMapLoaded: (map: google.maps.Map) => void = (_) => {};
 	export let onMarkerClicked: (marker: SpaceT) => void = (_) => {};
 
-	const maps_loader = new Loader({
+	const maps_loader = new GMaps.Loader({
 		apiKey: API_KEY,
 		version: 'beta',
 		libraries: ['drawing', 'places', 'marker']
