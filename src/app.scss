@@ -1,0 +1,42 @@
+.map-marker {
+    @apply flex items-center justify-center bg-white px-2 py-1 rounded shadow text-black border-[1px] border-orange-500;
+
+    &:hover {
+        @apply bg-slate-100;
+    }
+
+    .space-name {
+        @apply text-sm;
+    }
+    .space-type {
+        @apply text-xl mr-1;
+    }
+
+    &[data-selected="true"] {
+        @apply border-4;
+    }
+}
+
+.user-marker {
+    @apply flex flex-col items-center justify-center bg-slate-200 p-1 rounded-full aspect-square shadow text-black border-[2px] border-orange-500;
+
+    p[data-thing="emoji"] {
+        @apply text-center text-2xl;
+    }
+    p[data-thing="you"] {
+        @apply text-sm;
+    }
+}
+
+.location-image-slider .pagination li button.splide__pagination__page {
+    opacity: 1;
+    background: white;
+    width: 1em;
+    height: 1em;
+    @apply opacity-100 bg-white w-3 h-3;
+
+    &.is-active {
+        background: #fd8700;
+        transform: scale(1.0);
+    }
+}
