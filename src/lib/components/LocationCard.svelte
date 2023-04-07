@@ -68,7 +68,12 @@
 		{:else}
 			<img class="location-image" alt={imageAlt} src="https://picsum.photos/seed/picsum/600/450" />
 		{/if}
-		<p class="text-3xl mb-1">{location.name}</p>
+		<div class="flex justify-between items-center mt-2">
+			<p class="text-2xl mb-1">{location.name}</p>
+			{#if userLocation != null && location.coordinates}
+				<p class="text-sm">{distanceToUser(userLocation, location.coordinates, 'ms')} away</p>
+			{/if}
+		</div>
         <p class="mb-2">{location.description}</p>
 		<p class=""><b>Open:</b> {location.openingHours}</p>
         {#if location.tags}
@@ -78,10 +83,6 @@
         {/each}
         </div>
         {/if}
-		<!-- {#if location.address}<p>{location.address}</p>{/if} -->
-		{#if userLocation != null && location.coordinates}
-			<p class="mt-4">Distance: {distanceToUser(userLocation, location.coordinates, 'ms')}</p>
-		{/if}
 	</div>
 </div>
 
@@ -105,8 +106,7 @@
 		}
 
         .tags {
-            @apply mt-2 flex items-center gap-1 w-full flex-wrap p-1 bg-[#343333];
-			box-shadow: 5px 5px 0px -3px #fd8700;
+            @apply mt-2 flex items-center gap-1 w-full flex-wrap p-1;
 
             .tag {
                 @apply rounded shadow text-xs px-2 py-1 bg-white text-black;

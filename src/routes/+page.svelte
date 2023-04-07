@@ -6,7 +6,7 @@
 	import { cityFilters, selectedSpace, userLocation } from '$lib/store';
 	import type { CityT, SpaceDataT } from '$lib/types';
 	import Filters from '$lib/components/Filters.svelte';
-	import { distanceBetweenCoordinates, distanceToUser } from '$lib/utils';
+	import { distanceBetweenCoordinates } from '$lib/utils';
 
 	// TODO: remove type assertion
 	const spaceData: SpaceDataT = <SpaceDataT> data;
@@ -51,7 +51,7 @@
 				: errorMessage.length > 0
 				? errorMessage
 				: `Got your location!`}
-		<div class="flex justify-between w-full">
+		<div class="flex w-full">
 			{#key geoStatusText}
 				<div
 					class="gl-status"
@@ -63,7 +63,7 @@
 						: 'not-available'}
 				>
 					<p>{geoStatusText}</p>
-					<button class:hidden={!location} class="px-2 bg-orange-800 border-white border-2 text-white" on:click={() => { refreshCoords() }}>I moved!</button>
+					<button class:hidden={!location || loading} class="px-2 bg-blue-50 rounded shadow text-gray-800 border-2 border-white hover:bg-blue-200" on:click={() => { refreshCoords() }}>I moved!</button>
 				</div>
 			{/key}
 		</div>
@@ -83,7 +83,7 @@
 
 <style lang="scss">
 	.gl-status {
-		@apply w-full flex justify-between items-center px-4 text-center py-4;
+		@apply w-full flex md:justify-center gap-8 items-center px-4 text-center py-4;
 		&[data-available='not-available'] {
 			@apply bg-red-500;
 		}
