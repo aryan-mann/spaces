@@ -3,8 +3,10 @@
 	import type { CityT, SpaceT } from '$lib/types';
 	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
 	const API_KEY = 'AIzaSyDXQ6Vhx0C6WV7xLQs0iVWMO_vLVJjGGhs';
-	import { Loader } from '@googlemaps/js-api-loader';
+	import GMaps from '@googlemaps/js-api-loader';
 	import { afterUpdate, onMount } from 'svelte';
+
+	const { Loader } = GMaps;
 
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
 	export let city: CityT | null = null;
