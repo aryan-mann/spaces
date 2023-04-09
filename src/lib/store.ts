@@ -7,8 +7,10 @@ export const userLocation = writable<GeolocationPosition | null>(null);
 
 export type CityFilters = {
     showOnlyVetted: boolean;
+    spaceType: string;
 }
 const defaultCityFilters: CityFilters = {
-    showOnlyVetted: true
+    showOnlyVetted: true,
+    spaceType: ''
 }
 export const cityFilters = writable<CityFilters>(defaultCityFilters)

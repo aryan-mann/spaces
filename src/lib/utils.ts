@@ -1,5 +1,6 @@
-import type { CoordinateT, DistanceUnit, SpaceT } from "./types";
-
+import type { CityFilters } from "./store";
+import type { CityT, CoordinateT, DistanceUnit, SpaceDataT, SpaceT, SupportedCity } from "./types";
+import data from "./data.json";
 
 export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): string {
     const distance_in_unit = distanceBetweenCoordinates(
@@ -85,4 +86,34 @@ export function mapMarkerDeselected(marker: HTMLElement) {
 
 export function mapMarkerSelected(marker: HTMLElement) {
     marker.setAttribute("data-selected", "true");
+}
+
+export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLocation: GeolocationPosition | null): CityT {
+    let city = { ...data.cities[citySlug] };
+    
+    if (city !== null) {
+        city.spaces = city.spaces.filter((space) => {
+            if (filters.showOnlyVetted && !space.vetted){
+                return false;
+            }
+
+            if (filters.spaceType !== '' && space.type !== filters.spaceType) {
+                return false;
+            }
+
+            return true;
+        });
+
+        city.spaces = [...city.spaces].sort((space1, space2) => {
+            if (userLocation) {
+                const userCoords = { lat: userLocation.coords.latitude, lng: userLocation.coords.longitude };
+                let space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
+                let space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
+                return space1Distance - space2Distance;
+            }
+            return + (space1.name > space2.name);
+        });
+    }
+
+    return city;
 }

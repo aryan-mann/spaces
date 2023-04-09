@@ -96,6 +96,7 @@
 			lastSelectedMapMarker = markerHtml;
 		}
 
+        $selectedSpace = space;
         map.flyTo(space.coordinates, 18)
 		onMarkerClicked(space);
 	}

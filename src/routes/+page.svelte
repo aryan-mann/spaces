@@ -1,36 +1,14 @@
 <script lang="ts">
 	import GeoLocation from '$lib/components/GeoLocation.svelte';
-	import data from '$lib/data.json';
 	import LocationList from '$lib/components/LocationList.svelte';
 	import Map from '$lib/components/Map.svelte';
 	import { cityFilters, selectedSpace, userLocation } from '$lib/store';
-	import type { CityT, SpaceDataT } from '$lib/types';
+	import { SupportedCity, type CityT, type SpaceDataT } from '$lib/types';
 	import Filters from '$lib/components/Filters.svelte';
-	import { distanceBetweenCoordinates } from '$lib/utils';
+	import { filterCity } from '$lib/utils';
 
-	// TODO: remove type assertion
-	const spaceData: SpaceDataT = <SpaceDataT> data;
 	let city: CityT | null = null;
-
-	function reloadCity(showOnlyVetted: boolean, userLocation: GeolocationPosition | null) {
-		city = { ...spaceData.cities['san-francisco'] };
-		if (city !== null) {
-			if (showOnlyVetted) {
-				city.spaces = city.spaces.filter((x) => x.vetted);
-			}
-
-			city.spaces = [...city.spaces].sort((space1, space2) => {
-				if (userLocation) {
-					const userCoords = { lat: userLocation.coords.latitude, lng: userLocation.coords.longitude };
-					let space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
-					let space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
-					return space1Distance - space2Distance;
-				}
-				return + (space1.name > space2.name);
-			});
-		}
-	}
-	$: reloadCity($cityFilters.showOnlyVetted, $userLocation);
+	$: city = filterCity(SupportedCity.SAN_FRANCISCO, $cityFilters, $userLocation);
 </script>
 
 <svelte:head>
@@ -49,7 +27,7 @@
 				: errorMessage.length > 0
 				? errorMessage
 				: `Got your location!`}
-		<div class="flex w-full">
+		<div class="w-full hidden">
 			{#key geoStatusText}
 				<div
 					class="gl-status"

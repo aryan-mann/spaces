@@ -11,9 +11,13 @@ export interface CoordinateT {
     lng: number
 }
 
+export enum SupportedCity {
+    SAN_FRANCISCO = "san-francisco"
+}
+
 export interface SpaceDataT {
     version: number;
-    cities: { [key: string]: CityT }
+    cities: { [key in SupportedCity]: CityT }
 }
 
 export interface CityT {
