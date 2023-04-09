@@ -1,151 +1,118 @@
 <script lang="ts">
-	import { selectedSpace, userLocation } from '$lib/store';
-	import type { CityT, SpaceT } from '$lib/types';
-	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
-	const API_KEY = 'AIzaSyDXQ6Vhx0C6WV7xLQs0iVWMO_vLVJjGGhs';
-	import * as GMaps from '@googlemaps/js-api-loader';
-	import { afterUpdate, onMount } from 'svelte';
+    import { onMount, onDestroy, afterUpdate } from 'svelte';
+    import type { CityT, MapMarkerT, SpaceT } from '$lib/types';
+	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap } from '$lib/utils';
+    import type { DivIcon, Marker, Map as LeafletMap } from '@types/leaflet';
+	import { selectedSpace } from '$lib/store';
 
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
 	export let city: CityT | null = null;
 	export let mapLoaded: boolean = false;
-	export let onMapLoaded: (map: google.maps.Map) => void = (_) => {};
 	export let onMarkerClicked: (marker: SpaceT) => void = (_) => {};
 
-	const maps_loader = new GMaps.Loader({
-		apiKey: API_KEY,
-		version: 'beta',
-		libraries: ['drawing', 'places', 'marker']
-	});
+    let mapElement: HTMLElement | null = null;
+    let map: LeafletMap;
+    let mapMarkers: { [key: string]: { marker: Marker, html: HTMLElement } } = {}
 
-	let map: google.maps.Map;
-	let mapDiv: HTMLElement;
-	let markers: { [key: string]: google.maps.marker.AdvancedMarkerView } = {};
-	let userMarker: google.maps.marker.AdvancedMarkerView | null = null;
-	let lastSelectedMapMarker: Element | null = null;
+    let lastLoadedSpaces: SpaceT[] = [];
+    let updating: boolean = false;
+    let lastSelectedMapMarker: HTMLElement | null = null;
+    
+    onMount(async () => {
+        const leaflet = await import('leaflet');
+        map = leaflet.map(mapElement!).setView([mapCenter.latitude, mapCenter.longitude], mapCenter.altitude);
 
-	userLocation.subscribe((val) => {
-		if (val === null || !mapLoaded) {
-			return;
-		}
-		
-		const coords = { lat: val.coords.latitude, lng: val.coords.longitude };
-		if (userMarker === null) {
-			userMarker = new google.maps.marker.AdvancedMarkerView({
-				title: `Your Location`,
-				position: coords,
-				map: map,
-				content: userRepresentationOnMap(val),
-                collisionBehavior: google.maps.CollisionBehavior.REQUIRED,
-				zIndex: 101
-			});
-		} else {
-			userMarker.position = coords;
-		}
+        // Add a tile layer
+        leaflet.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-		console.log(`User location updated. Panning to`, coords);
-		map.panTo(coords);
-	}, (inv) => {
-		
-	});
+        mapLoaded = true;
 
-	onMount(async () => {
-		await maps_loader.load();
-		const { Map } = (await google.maps.importLibrary('maps')) as google.maps.MapsLibrary;
-
-		map = new Map(mapDiv, {
-			center: { lat: mapCenter.latitude, lng: mapCenter.longitude },
-			zoom: mapCenter.altitude,
-			mapId: '4c755e7bfa5a1b80',
-			clickableIcons: false,
-			controlSize: 1,
-			disableDefaultUI: true,
-			mapTypeControl: false,
-			isFractionalZoomEnabled: true
-		});
-		mapLoaded = true;
-
-		// A marker with a custom inline SVG.
-		city?.spaces.forEach((mm) => {
-            const marker = new google.maps.marker.AdvancedMarkerView({
-				title: mm.name,
-				position: { lat: mm.coordinates.lat, lng: mm.coordinates.lng },
-				map: map,
-				content: spaceRepresentationOnMap(mm),
-                collisionBehavior: google.maps.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
-			});
-            
-			markers[mm.name] = marker;
-            marker.addListener("click", () => { markerClicked(mm, marker) });
-		});
-
-		onMapLoaded(map);
-
-		selectedSpace.subscribe((val) => {
-			if (!mapLoaded || !val)
+        selectedSpace.subscribe((space) => {
+			if (!mapLoaded || !space)
 				return;
 
-			const selectedMapMarker = markers[val.name];
+			const selectedMapMarker = mapMarkers[space.name];
 			if (lastSelectedMapMarker !== null) {
-				lastSelectedMapMarker.setAttribute("data-selected", "false");
+                mapMarkerDeselected(lastSelectedMapMarker);
 			}
-			selectedMapMarker.content?.setAttribute("data-selected", "true");
-			lastSelectedMapMarker = selectedMapMarker.content!;
+            mapMarkerSelected(selectedMapMarker.html);
+			lastSelectedMapMarker = selectedMapMarker.html;
 
-			map.panTo({ lat: val.coordinates.lat, lng: val.coordinates.lng })
+			map.flyTo(space.coordinates, 18);
 		})
-	});
 
-	afterUpdate(() => {
-		if (city === null || !mapLoaded)
-			return;
+        refreshMap();
+    })
 
-		if (Object.entries(markers).length === city.spaces.length)
-			return;
+    afterUpdate(async () => {
+        await refreshMap();
+    })
 
-		// Remove all markers
-		Object.values(markers).forEach((marker) => {
-			marker.map = null
-		});
+    async function refreshMap() {
+        // console.log(`Map Loaded: ${mapLoaded} | City Null: ${city === null} | Spaces Null: ${city?.spaces === null}`);
+        // console.log(`City Spaces Length: ${city?.spaces.length} | Updating: ${updating} | Last Loaded Equal: ${lastLoadedSpaces === city?.spaces}`)
+        if (!mapLoaded || city === null || city.spaces === null ||
+         city.spaces.length <= 0 || updating || lastLoadedSpaces === city.spaces)
+            return;
 
-		markers = {};
-		// A marker with a custom inline SVG.
-		city?.spaces.forEach((mm) => {
-            const marker = new google.maps.marker.AdvancedMarkerView({
-				title: mm.name,
-				position: { lat: mm.coordinates.lat, lng: mm.coordinates.lng },
-				map: map,
-				content: spaceRepresentationOnMap(mm),
-                collisionBehavior: google.maps.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
-			});
-            
-			markers[mm.name] = marker;
-            marker.addListener("click", () => { markerClicked(mm, marker) });
-		});
-	})
+        const leaflet = await import('leaflet');
 
-	function markerClicked(space: SpaceT, spaceDiv: google.maps.marker.AdvancedMarkerView) {
-		if (lastSelectedMapMarker != null) {
+        // Remove existing markers
+        Object.values(mapMarkers).forEach((marker) => {
+            marker.marker.removeFrom(map);
+        })
+
+        updating = true;
+        for (let space of city.spaces) {
+            const markerHtml = spaceRepresentationOnMap(space);
+            const markerDivIcon = leaflet.divIcon({ 
+                html: markerHtml,
+                className: "space-marker",
+            });
+            const marker = leaflet.marker(space.coordinates, { 
+                title: space.name,
+                icon: markerDivIcon,
+                draggable: false 
+            })
+            marker.on("click", () => { markerClicked(space, marker, markerHtml);  })
+
+            mapMarkers[space.name] = { marker: marker, html: markerHtml };
+            marker.addTo(map);
+        }
+
+        lastLoadedSpaces = [...city.spaces]
+        updating = false;
+    }
+
+    function markerClicked(space: SpaceT, marker: Marker, markerHtml: HTMLElement) {
+        if (lastSelectedMapMarker != null) {
 			mapMarkerDeselected(lastSelectedMapMarker);
 		}
 
-		const selectedMapMarker = spaceDiv.content;
-		if (selectedMapMarker) {
-			mapMarkerSelected(selectedMapMarker);
-			lastSelectedMapMarker = selectedMapMarker;
+		if (markerHtml) {
+			mapMarkerSelected(markerHtml);
+			lastSelectedMapMarker = markerHtml;
 		}
 
-		map.panTo(space.coordinates);
+        map.flyTo(space.coordinates, 18)
 		onMarkerClicked(space);
 	}
+
+    onDestroy(() => {
+        map?.remove();
+    })
 </script>
 
-<div>
-	<div class="map" bind:this={mapDiv} />
+
+<div class="map">
+    <div bind:this={mapElement}></div>
 </div>
 
-<style lang="scss">
-	.map {
-		@apply h-[700px] w-full;
-	}
+<style>
+    @import 'leaflet/dist/leaflet.css';
+    .map div {
+        @apply h-[400px] md:h-[600px];
+    }
 </style>

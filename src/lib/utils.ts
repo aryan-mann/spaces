@@ -56,7 +56,7 @@ export function userRepresentationOnMap(pos: GeolocationPosition): Element {
     return wrapper;
 }
 
-export function spaceRepresentationOnMap(space: SpaceT): Element {
+export function spaceRepresentationOnMap(space: SpaceT): HTMLElement {
     const wrapper = document.createElement('div');
     wrapper.classList.add("map-marker");
     wrapper.setAttribute("data-type", space.type);
@@ -79,10 +79,10 @@ export function spaceRepresentationOnMap(space: SpaceT): Element {
     return wrapper;
 }
 
-export function mapMarkerDeselected(marker: Element) {
+export function mapMarkerDeselected(marker: HTMLElement) {
     marker.setAttribute("data-selected", "false");
 }
 
-export function mapMarkerSelected(marker: Element) {
+export function mapMarkerSelected(marker: HTMLElement) {
     marker.setAttribute("data-selected", "true");
 }

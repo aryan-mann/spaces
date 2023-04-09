@@ -23,9 +23,7 @@
 				if (userLocation) {
 					const userCoords = { lat: userLocation.coords.latitude, lng: userLocation.coords.longitude };
 					let space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
-					console.log(`space1distance: ${space1Distance}`)
 					let space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
-					console.log(`space2distance: ${space2Distance}`)
 					return space1Distance - space2Distance;
 				}
 				return + (space1.name > space2.name);
@@ -69,7 +67,7 @@
 		</div>
 		<!-- Map component -->
 		<Map
-			{city}
+			city={city}
 			onMarkerClicked={(m) => {
 				$selectedSpace = m;
 			}}

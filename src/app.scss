@@ -6,7 +6,7 @@
     }
 
     .space-name {
-        @apply text-sm;
+        @apply text-sm whitespace-nowrap;
     }
     .space-type {
         @apply text-xl mr-1;
@@ -15,6 +15,12 @@
     &[data-selected="true"] {
         @apply border-4;
     }
+}
+
+.space-marker {
+    margin: 0 !important;
+    width: auto !important;
+    height: auto !important;
 }
 
 .user-marker {
