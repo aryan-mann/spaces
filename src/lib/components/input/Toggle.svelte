@@ -7,7 +7,7 @@
 
 <label class="toggle inline-flex items-center bg-orange-100 py-1 px-2 rounded shadow">
     <input type="checkbox" class="sr-only" bind:checked={checked}>
-    <span class="select-none">{label}</span>
+    <span class="select-none whitespace-nowrap">{label}</span>
     <div class="px-4 py-[1px] rounded ml-3 transition-colors duration-500 select-none" data-checked={checked}>
         <span class:text-black={checked} class:text-red-800={!checked}>
             {checked ? display.checked: display.unchecked}

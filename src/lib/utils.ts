@@ -1,5 +1,4 @@
-import type { CityFilters } from "./store";
-import type { CityT, CoordinateT, DistanceUnit, SpaceDataT, SpaceT, SupportedCity } from "./types";
+import type { CityT, CoordinateT, DistanceUnit, CityFilters, GeolocationStateT, SpaceDataT, SpaceT, SupportedCity, OpeningHoursT, OpenInformationT } from "./types";
 import data from "./data.json";
 
 export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): string {
@@ -39,7 +38,7 @@ export function distanceBetweenCoordinates(coord1: CoordinateT, coord2: Coordina
     }
 }
 
-export function userRepresentationOnMap(pos: GeolocationPosition): Element {
+export function userRepresentationOnMap(state: GeolocationStateT): HTMLElement {
     const wrapper = document.createElement('div');
     wrapper.classList.add("user-marker");
 
@@ -88,9 +87,10 @@ export function mapMarkerSelected(marker: HTMLElement) {
     marker.setAttribute("data-selected", "true");
 }
 
-export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLocation: GeolocationPosition | null): CityT {
+export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLocation: GeolocationStateT | null): CityT {
     let city = { ...data.cities[citySlug] };
-    
+    const now = new Date();
+
     if (city !== null) {
         city.spaces = city.spaces.filter((space) => {
             if (filters.showOnlyVetted && !space.vetted){
@@ -101,12 +101,16 @@ export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLo
                 return false;
             }
 
+            if (filters.showOnlyOpen && !parseOpeningHours(now, space.openingHours).open) {
+                return false;
+            }
+
             return true;
         });
 
         city.spaces = [...city.spaces].sort((space1, space2) => {
-            if (userLocation) {
-                const userCoords = { lat: userLocation.coords.latitude, lng: userLocation.coords.longitude };
+            if (userLocation?.location?.coords) {
+                const userCoords = { lat: userLocation.location.coords.latitude, lng: userLocation.location.coords.longitude };
                 let space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
                 let space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
                 return space1Distance - space2Distance;
@@ -116,4 +120,53 @@ export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLo
     }
 
     return city;
+}
+
+const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6, "su": 7 }
+function timeToDate(start: Date, end: Date): { days: number, hours: number, minutes: number } {
+    const diffMs = (end.valueOf() - start.valueOf());
+    const diffDays = Math.floor(diffMs / 86400000); // days
+    const diffHrs = Math.floor((diffMs % 86400000) / 3600000); // hours
+    const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+
+    return {
+        days: diffDays,
+        hours: diffHrs,
+        minutes: diffMins
+    }
+}
+
+export function parseOpeningHours(now: Date, hours: OpeningHoursT): OpenInformationT {
+    if (typeof hours === "boolean") {
+        return hours ? { open: true } : { open: false }
+    }
+
+    const nowDay = now.getDay();
+    for (let [days, time] of Object.entries(hours)) {
+        for (let i=0; i < days.length; i+= 2) {
+            const day: string = days.slice(i, i+2).toLowerCase();
+            const day_number: number | undefined = DAY_SHORT_NAME_TO_DAY_NUMBER[day];
+            if (day_number && nowDay == day_number) {
+                const openingTime = time[0];
+                const closingTime = time[1];
+
+                let start = new Date(now);
+                start.setHours(openingTime, 0, 0, 0);
+                let end = new Date(now);
+                end.setHours(closingTime, 0, 0, 0);
+
+                if (now < start) {
+                    const timeToOpen = timeToDate(now, start);
+                    return { open: false, from: timeToOpen }
+                } else if (now > end) {
+                    return { open: false }
+                } else {
+                    const timeToClose = timeToDate(now, end);
+                    return { open: true, till: timeToClose }
+                }
+            }
+        }
+    }
+
+    return { open: false };
 }

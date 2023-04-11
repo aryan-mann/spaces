@@ -1,16 +1,20 @@
 import { writable } from "svelte/store";
-import type { SpaceT } from "$lib/types";
+import type { CityFilters, GeolocationStateT, SpaceT } from "$lib/types";
 
 export const selectedSpace = writable<SpaceT|null>(null);
 
-export const userLocation = writable<GeolocationPosition | null>(null);
 
-export type CityFilters = {
-    showOnlyVetted: boolean;
-    spaceType: string;
+const defaultUserLocation: GeolocationStateT = {
+    geoLocationAvailable: null,
+    loading: false,
+    location: null,
+    errorMessage: null
 }
+export const userLocation = writable<GeolocationStateT>(defaultUserLocation);
+
 const defaultCityFilters: CityFilters = {
     showOnlyVetted: true,
+    showOnlyOpen: true,
     spaceType: ''
 }
 export const cityFilters = writable<CityFilters>(defaultCityFilters)

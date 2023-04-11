@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy, afterUpdate } from 'svelte';
-    import type { CityT, MapMarkerT, SpaceT } from '$lib/types';
-	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap } from '$lib/utils';
+    import type { CityT, GeolocationStateT, MapMarkerT, SpaceT } from '$lib/types';
+	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
     import type { DivIcon, Marker, Map as LeafletMap } from '@types/leaflet';
-	import { selectedSpace } from '$lib/store';
+	import { selectedSpace, userLocation } from '$lib/store';
 
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
 	export let city: CityT | null = null;
@@ -13,6 +13,7 @@
     let mapElement: HTMLElement | null = null;
     let map: LeafletMap;
     let mapMarkers: { [key: string]: { marker: Marker, html: HTMLElement } } = {}
+    let userMarker: Marker | null = null;
 
     let lastLoadedSpaces: SpaceT[] = [];
     let updating: boolean = false;
@@ -100,6 +101,34 @@
         map.flyTo(space.coordinates, 18)
 		onMarkerClicked(space);
 	}
+
+    async function addUserMapMarker(state: GeolocationStateT) {
+        if (!mapLoaded || !($userLocation?.location?.coords) || $userLocation.loading)
+            return;
+
+        if (userMarker) {
+            userMarker?.removeFrom(map);
+            userMarker = null;
+        }
+
+        const leaflet = await import('leaflet');
+        const markerHtml = userRepresentationOnMap($userLocation);
+        const markerDivIcon = leaflet.divIcon({ 
+            html: markerHtml,
+            className: "space-user-marker"
+        });
+        const userCoords = { lat: $userLocation.location.coords.latitude, lng: $userLocation.location.coords.longitude };
+        const marker = leaflet.marker(userCoords, { 
+            title: `You`,
+            icon: markerDivIcon,
+            draggable: false 
+        })
+        userMarker = marker;
+        marker.addTo(map);
+        map.flyTo(userCoords, 18, { animate: true })
+    }
+
+    $: addUserMapMarker($userLocation)
 
     onDestroy(() => {
         map?.remove();

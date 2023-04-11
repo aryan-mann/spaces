@@ -15,6 +15,19 @@ export enum SupportedCity {
     SAN_FRANCISCO = "san-francisco"
 }
 
+export type CityFilters = {
+    showOnlyVetted: boolean;
+    showOnlyOpen: boolean,
+    spaceType: string;
+}
+
+export interface GeolocationStateT {
+	geoLocationAvailable: boolean | null;
+	loading: boolean;
+	location: GeolocationPosition | null;
+	errorMessage: string | null;
+}
+
 export interface SpaceDataT {
     version: number;
     cities: { [key in SupportedCity]: CityT }
@@ -29,11 +42,15 @@ export interface CityT {
     spaces: Array<SpaceT>;
 }
 
+export type OpeningHoursT = {
+    [key: string]: number[]
+} | boolean;
+
 export interface SpaceT {
     name: string;
     type: string;
     images?: string[];
-    openingHours: string;
+    openingHours: OpeningHoursT;
     description: string;
     coordinates: CoordinateT;
     address?: string;
@@ -42,4 +59,16 @@ export interface SpaceT {
     tags?: string[];
     authorNote?: string;
     rating?: number;
+}
+
+export type DurationT = {
+    days: number,
+    hours: number,
+    minutes: number
+}
+
+export type OpenInformationT = {
+    open: boolean,
+    from?: DurationT,
+    till?: DurationT 
 }

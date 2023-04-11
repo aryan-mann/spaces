@@ -3,36 +3,31 @@
 	import { onMount } from 'svelte';
 
 	const ARTIFICIAL_DELAY = 1000;
-
-	export let geoLocationAvailable: boolean | null = null;
-	export let hasLocation: boolean = false;
-	export let location: GeolocationPosition | null = null;
-	export let loading: boolean = false;
-	export let errorMessage: string = '';
 	export const refreshCoords = () => {
 		queryLocation();
 	};
 
 	function queryLocation() {
-		if (loading) return;
+		if ($userLocation.loading) 
+			return;
 
-		loading = true;
-		geoLocationAvailable = 'geolocation' in navigator;
-		if (!geoLocationAvailable) return;
+		$userLocation.loading = true;
+		$userLocation.geoLocationAvailable = 'geolocation' in navigator;
+		if (!$userLocation.geoLocationAvailable) 
+			return;
 
 		navigator.geolocation.getCurrentPosition(
 			(pos) => {
 				setTimeout(() => {
-					hasLocation = true;
-					location = pos;
-					userLocation.set(pos);
-					loading = false;
+					$userLocation.location = pos;
+					$userLocation.loading = false;
+					$userLocation.errorMessage = null;
 				}, ARTIFICIAL_DELAY);
 			},
 			(err) => {
-				loading = false;
-				userLocation.set(null);
-				errorMessage = `Unable to get location: ${err.message}`;
+				$userLocation.loading = false;
+				$userLocation.location = null;
+				$userLocation.errorMessage = `Unable to get location: ${err.message}`;
 			},
 			{ enableHighAccuracy: true, timeout: 10000 }
 		);
@@ -43,4 +38,6 @@
 	});
 </script>
 
-<slot {geoLocationAvailable} {location} {hasLocation} {loading} {refreshCoords} {errorMessage} />
+<slot location={$userLocation.location} loading={$userLocation.loading} 
+	errorMessage={$userLocation.errorMessage} geolocationAvailable={$userLocation.geoLocationAvailable}
+	{refreshCoords} />
