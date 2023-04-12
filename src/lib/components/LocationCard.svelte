@@ -53,10 +53,14 @@
 			<p class="text-sm">
 				{#if $userLocation?.location?.coords && location.coordinates}
 					{distanceToUser($userLocation.location, location.coordinates, 'ms')} away
+				{:else if $userLocation.loading}
+					...
+				{:else}
+				    ??
 				{/if}
 			</p>
 			<button on:click={() => openInMaps()}>Go</button>
-			<p class="underline cursor-pointer" on:click={() => { $selectedSpace = location; }}>Select on map</p>
+			<p class="underline cursor-pointer" on:click={() => {  $selectedSpace = location; }}>Select on map</p>
 		</div>
 		{#if location.images && location.images.length > 0}
 			{#if location.images.length > 1}

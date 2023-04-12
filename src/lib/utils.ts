@@ -1,5 +1,6 @@
 import type { CityT, CoordinateT, DistanceUnit, CityFilters, GeolocationStateT, SpaceDataT, SpaceT, SupportedCity, OpeningHoursT, OpenInformationT } from "./types";
 import data from "./data.json";
+import type { Page } from "@sveltejs/kit";
 
 export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): string {
     const distance_in_unit = distanceBetweenCoordinates(
@@ -74,6 +75,8 @@ export function spaceRepresentationOnMap(space: SpaceT): HTMLElement {
 
     if (space.type === "Park") {
         popoType.innerText = '🌲';
+    } else if (space.type === "Cafe") {
+        popoType.innerText = '☕';
     }
 
     return wrapper;
@@ -85,6 +88,10 @@ export function mapMarkerDeselected(marker: HTMLElement) {
 
 export function mapMarkerSelected(marker: HTMLElement) {
     marker.setAttribute("data-selected", "true");
+}
+
+export function isDebugView(page: Page<Record<string, string>, string | null>) {
+    return page.url.searchParams.has("debug");
 }
 
 export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLocation: GeolocationStateT | null): CityT {

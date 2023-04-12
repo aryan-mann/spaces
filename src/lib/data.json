@@ -35,6 +35,25 @@
                     }
                 },
                 {
+                    "name": "55 2nd Street",
+                    "description": "A large indoor hall with tons of indoor seating, wifi, and power plugs. WeWork vibes.",
+                    "images": [
+                        "552nd_001.webp",
+                        "552nd_002.webp",
+                        "552nd_003.webp"
+                    ],
+                    "address": "55 2nd St, San Francisco, CA 94105",
+                    "vetted": true,
+                    "tags": [ "wifi", "power plugs", "ample seating", "quiet", "work friendly"],
+                    "coordinates": {
+                        "lat": 37.788676, 
+                        "lng": -122.400490
+                    },
+                    "openingHours": {
+                        "MoTuWeThFr": [8, 18]
+                    }
+                },
+                {
                     "name": "Salesforce Park",
                     "type": "POPO",
                     "images": [

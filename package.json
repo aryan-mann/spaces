@@ -39,7 +39,6 @@
 	"type": "module",
 	"dependencies": {
 		"@splidejs/svelte-splide": "^0.2.9",
-		"leaflet": "^1.9.3",
-		"svelte-carousel": "^1.0.25"
+		"leaflet": "^1.9.3"
 	}
 }
