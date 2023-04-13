@@ -5,28 +5,29 @@
 	import { cityFilters, selectedSpace, userLocation } from '$lib/store';
 	import { SupportedCity, type CityT, type SpaceDataT } from '$lib/types';
 	import Filters from '$lib/components/Filters.svelte';
-	import { filterCity } from '$lib/utils';
+	import { filterSpaces } from '$lib/utils';
+	import type { PageData } from './$types';
 
-	let city: CityT | null = null;
-	$: city = filterCity(SupportedCity.SAN_FRANCISCO, $cityFilters, $userLocation);
+	export let data: PageData;
+	$: spaces = filterSpaces(data.spaces, $cityFilters, $userLocation);
 </script>
 
 <svelte:head>
-	<title>ourspac.es | {city?.displayName || "Around You"}</title>
+	<title>ourspac.es | San Francisco</title>
 </svelte:head>
 <div>
 	<GeoLocation />
 	<!-- Map component -->
 	<Map
-		city={city}
+		{spaces}
 		onMarkerClicked={(m) => {
 			$selectedSpace = m;
 		}}
 	/>
 	<!-- Filters -->
-	<Filters {city} />
+	<Filters {spaces} />
 	<!-- Locations -->
-	<LocationList {city} />
+	<LocationList {spaces} />
 </div>
 
 <style lang="scss">

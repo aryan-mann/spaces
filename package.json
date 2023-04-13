@@ -39,6 +39,8 @@
 	"type": "module",
 	"dependencies": {
 		"@splidejs/svelte-splide": "^0.2.9",
-		"leaflet": "^1.9.3"
+		"leaflet": "^1.9.3",
+		"svelte-icons": "^2.1.0",
+		"yaml": "^2.2.1"
 	}
 }

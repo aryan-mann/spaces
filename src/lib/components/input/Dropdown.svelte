@@ -13,7 +13,7 @@
 </script>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
-<label class="dropdown inline-flex items-center bg-orange-100 py-1 px-2 rounded shadow">
+<label class="dropdown inline-flex items-center bg-primary-100 py-1 px-2 rounded shadow">
     <span class="select-none whitespace-nowrap">{label}</span>
     <div class="px-4 py-[1px] rounded ml-3 transition-colors duration-500 select-none">
         <select bind:value={$cityFilters.spaceType}>

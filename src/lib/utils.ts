@@ -1,5 +1,4 @@
 import type { CityT, CoordinateT, DistanceUnit, CityFilters, GeolocationStateT, SpaceDataT, SpaceT, SupportedCity, OpeningHoursT, OpenInformationT } from "./types";
-import data from "./data.json";
 import type { Page } from "@sveltejs/kit";
 
 export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): string {
@@ -94,39 +93,48 @@ export function isDebugView(page: Page<Record<string, string>, string | null>) {
     return page.url.searchParams.has("debug");
 }
 
-export function filterCity(citySlug: SupportedCity, filters: CityFilters, userLocation: GeolocationStateT | null): CityT {
-    let city = { ...data.cities[citySlug] };
-    const now = new Date();
-
-    if (city !== null) {
-        city.spaces = city.spaces.filter((space) => {
-            if (filters.showOnlyVetted && !space.vetted){
-                return false;
-            }
-
-            if (filters.spaceType !== '' && space.type !== filters.spaceType) {
-                return false;
-            }
-
-            if (filters.showOnlyOpen && !parseOpeningHours(now, space.openingHours).open) {
-                return false;
-            }
-
-            return true;
-        });
-
-        city.spaces = [...city.spaces].sort((space1, space2) => {
-            if (userLocation?.location?.coords) {
-                const userCoords = { lat: userLocation.location.coords.latitude, lng: userLocation.location.coords.longitude };
-                let space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
-                let space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
-                return space1Distance - space2Distance;
-            }
-            return + (space1.name > space2.name);
-        });
+export function getStarRating(rating: number, max = 5, empty = '☆', full = '★'): string {
+    const starRating: string[] = new Array(max).fill(empty);
+    for (let i=0; i < rating; i++) {
+        starRating[i] = full;
     }
 
-    return city;
+    return starRating.join('');
+}
+
+export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLocation: GeolocationStateT | null): Array<SpaceT> {
+    if (!spaces.length) {
+        return []
+    }
+
+    const now = new Date();
+    spaces = spaces.filter((space) => {
+        if (filters.showOnlyVetted && !space.vetted){
+            return false;
+        }
+
+        if (filters.spaceType !== '' && space.type !== filters.spaceType) {
+            return false;
+        }
+
+        if (filters.showOnlyOpen && typeof space.openingHours !== "string" && !parseOpeningHours(now, space.openingHours).open) {
+            return false;
+        }
+
+        return true;
+    });
+
+    spaces.sort((space1, space2) => {
+        if (userLocation?.location?.coords) {
+            const userCoords = { lat: userLocation.location.coords.latitude, lng: userLocation.location.coords.longitude };
+            const space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
+            const space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
+            return space1Distance - space2Distance;
+        }
+        return + (space1.name > space2.name);
+    });
+
+    return spaces;
 }
 
 const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6, "su": 7 }

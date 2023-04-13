@@ -3,13 +3,13 @@
 	import { scrollableByMouse } from "$lib/usetils";
 	import LocationCard from "./LocationCard.svelte";
     
-    export let city: CityT | null = null;
+    export let spaces: Array<SpaceT> = [];
 </script>
 
-{#if city}
-<div class="relative flex overflow-x-scroll w-full px-8 py-2 gap-8 mb-8" use:scrollableByMouse>
-{#each city.spaces as location (location.name)}
-    <LocationCard {city} {location} />
+{#if spaces?.length > 0}
+<div class="relative flex overflow-x-scroll w-full px-6 md:px-12 pt-0 pb-10 gap-8 mb-8" use:scrollableByMouse>
+{#each spaces as location (location.name)}
+    <LocationCard {location} />
 {/each}
 </div>
 {/if}

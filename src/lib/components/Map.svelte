@@ -1,13 +1,14 @@
 <script lang="ts">
     import { onMount, onDestroy, afterUpdate } from 'svelte';
-    import type { CityT, GeolocationStateT, MapMarkerT, SpaceT } from '$lib/types';
+    import type { GeolocationStateT, SpaceT } from '$lib/types';
 	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
-    import type { DivIcon, Marker, Map as LeafletMap } from '@types/leaflet';
+    // @ts-ignore – Cannot import type declaration files
+    import type { Marker, Map as LeafletMap } from '@types/leaflet';
 	import { selectedSpace, userLocation } from '$lib/store';
 
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
-	export let city: CityT | null = null;
-	export let mapLoaded: boolean = false;
+    export let spaces: Array<SpaceT> = [];
+    export let mapLoaded: boolean = false;
 	export let onMarkerClicked: (marker: SpaceT) => void = (_) => {};
 
     let mapElement: HTMLElement | null = null;
@@ -52,21 +53,17 @@
     })
 
     async function refreshMap() {
-        // console.log(`Map Loaded: ${mapLoaded} | City Null: ${city === null} | Spaces Null: ${city?.spaces === null}`);
-        // console.log(`City Spaces Length: ${city?.spaces.length} | Updating: ${updating} | Last Loaded Equal: ${lastLoadedSpaces === city?.spaces}`)
-        if (!mapLoaded || city === null || city.spaces === null ||
-         city.spaces.length <= 0 || updating || lastLoadedSpaces === city.spaces)
+        if (!mapLoaded || spaces === null || spaces.length <= 0 || updating || lastLoadedSpaces === spaces)
             return;
 
         const leaflet = await import('leaflet');
-
         // Remove existing markers
         Object.values(mapMarkers).forEach((marker) => {
             marker.marker.removeFrom(map);
         })
 
         updating = true;
-        for (let space of city.spaces) {
+        for (let space of spaces) {
             const markerHtml = spaceRepresentationOnMap(space);
             const markerDivIcon = leaflet.divIcon({ 
                 html: markerHtml,
@@ -83,7 +80,7 @@
             marker.addTo(map);
         }
 
-        lastLoadedSpaces = [...city.spaces]
+        lastLoadedSpaces = [...spaces]
         updating = false;
     }
 
@@ -123,6 +120,13 @@
             icon: markerDivIcon,
             draggable: false 
         })
+        marker.on("click", () => {
+            const loc = $userLocation.location?.coords;
+            if (loc) {
+                map.flyTo({ lat: loc.latitude, lng: loc.longitude }, 15);
+            }
+        });
+
         userMarker = marker;
         marker.addTo(map);
         map.flyTo(userCoords, 18, { animate: true })
@@ -138,11 +142,24 @@
 
 <div class="map">
     <div bind:this={mapElement}></div>
+    <div class="absolute right-2 top-2 z-[500]">
+        <p>
+        {#if $userLocation.geoLocationAvailable === false}
+        Location N/A
+        {:else if $userLocation.loading}
+        Locating..
+        {:else if $userLocation.location}
+        Located
+        {:else}
+        {JSON.stringify($userLocation)}
+        {/if}
+        </p>
+    </div>
 </div>
 
 <style>
     @import 'leaflet/dist/leaflet.css';
     .map div {
-        @apply h-[400px] md:h-[600px];
+        @apply h-[400px] md:h-[800px];
     }
 </style>

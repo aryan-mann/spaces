@@ -1,5 +1,5 @@
 .map-marker {
-    @apply flex items-center justify-center bg-white px-2 py-1 rounded shadow text-black border-[1px] border-secondary-500;
+    @apply flex items-center justify-center bg-white px-2 py-1 rounded-lg shadow text-black border-[2px] border-primary;
 
     &:hover {
         @apply bg-slate-100;
@@ -23,7 +23,7 @@
     height: auto !important;
 
     & .space-name {
-        @apply text-sm;
+        @apply text-xs;
     }
 }
 
@@ -31,8 +31,11 @@
     
 }
 
+.leaflet-bottom.leaflet-right {
+    z-index: 401;
+}
+
 .user-marker {
-    // @apply flex flex-col items-center justify-center bg-slate-200 p-1 rounded-full aspect-square shadow text-black border-[2px] border-orange-500;
     @apply flex items-center justify-center w-10 border-2 border-black h-10 rounded-full bg-white;
 
     p[data-thing="emoji"] {

@@ -43,20 +43,21 @@ export interface CityT {
 }
 
 export type OpeningHoursT = {
-    [key: string]: number[]
+    [key: string]: number[] | undefined
 } | boolean;
 
 export interface SpaceT {
     name: string;
+    city?: string;
     type: string;
     images?: string[];
-    openingHours: OpeningHoursT;
+    openingHours: string | OpeningHoursT;
     description: string;
     coordinates: CoordinateT;
     address?: string;
     vetted?: boolean;
     featured?: boolean;
-    tags?: string[];
+    tags?: Array<string | { label: string, detail: string }>;
     authorNote?: string;
     rating?: number;
 }
