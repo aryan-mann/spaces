@@ -160,6 +160,6 @@
 <style>
     @import 'leaflet/dist/leaflet.css';
     .map div {
-        @apply h-[400px] md:h-[800px];
+        @apply h-[350px] md:h-[650px];
     }
 </style>

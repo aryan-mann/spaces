@@ -1,38 +1,15 @@
-# create-svelte
+# [Our Spaces](https://ourspac.es)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+![Demo](static/images/example.png)
 
-## Creating a project
+> ### A resource of spaces around San Francisco.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Each space is selected and displayed in the service of the goal of making community spaces more recognizable, and hopefully, better utilized. A community space is not a strong definition – we have included everything from parks to selected coffee shops to selected publicly open private spaces (POPOs).
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+### Developing
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Clone the repository, install dependencies and use the `dev` script. For yarn, this would be `yarn && yarn dev`; for pnpm, we would `pnpm install && pnpm dev`; etc.
 
-## Developing
+### Contributing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+For now: to add, edit, or remove spaces to the map, open a PR and edit the `spaces.ts` in the `src/lib` directory. Adding a UI + database is somewhere on the list of priorities but not too high.
