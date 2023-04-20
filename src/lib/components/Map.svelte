@@ -143,7 +143,7 @@
 <div class="map">
     <div bind:this={mapElement}></div>
     <div class="absolute right-2 top-2 z-[500]">
-        <p>
+        <p class="px-1 py-1 bg-primary-900 opacity-25 text-white rounded">
         {#if $userLocation.geoLocationAvailable === false}
         Location N/A
         {:else if $userLocation.loading}
@@ -151,7 +151,7 @@
         {:else if $userLocation.location}
         Located
         {:else}
-        {JSON.stringify($userLocation)}
+        Beep boop..
         {/if}
         </p>
     </div>

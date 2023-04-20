@@ -186,7 +186,7 @@
                 @apply rounded shadow text-xs px-2 py-1 bg-white text-black;
 
 				&.detailed {
-					@apply bg-primary-700 text-white hover:bg-primary-800 cursor-pointer;
+					@apply animate-pulse bg-primary-700 text-white hover:bg-primary-800 cursor-pointer;
 				}
             }
         }
