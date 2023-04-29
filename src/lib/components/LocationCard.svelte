@@ -139,7 +139,7 @@
 				{#each openingHoursToDays(location.openingHours) as [dayName, times]}
 					<li class="inline-flex w-full justify-between">
 						<span>{dayName}</span>
-						<span class="bg-primary-600 px-2">{times}</span>
+						<span class="px-2 ml-2">{times}</span>
 					</li>
 				{/each}
 				</ul>
