@@ -7,7 +7,7 @@
 </script>
 
 {#if spaces?.length > 0}
-<div class="relative flex overflow-x-scroll w-full px-6 md:px-12 pt-0 pb-10 gap-8 mb-8" use:scrollableByMouse>
+<div class="relative flex overflow-x-scroll w-full px-6 md:px-12 pt-1 pb-6 gap-8" use:scrollableByMouse>
 {#each spaces as location (location.name)}
     <LocationCard {location} />
 {/each}

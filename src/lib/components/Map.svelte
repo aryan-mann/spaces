@@ -26,7 +26,7 @@
 
         // Add a tile layer
         leaflet.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: ''
         }).addTo(map);
 
         mapLoaded = true;

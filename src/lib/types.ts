@@ -43,7 +43,7 @@ export interface CityT {
 }
 
 export type OpeningHoursT = {
-    [key: string]: number[] | undefined
+    [key: string]: number[]
 } | boolean;
 
 export interface SpaceT {
@@ -70,6 +70,7 @@ export type DurationT = {
 
 export type OpenInformationT = {
     open: boolean,
+    temporarilyClosed: boolean,
     from?: DurationT,
-    till?: DurationT 
+    till?: DurationT,
 }

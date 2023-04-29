@@ -138,6 +138,11 @@ export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLo
 }
 
 const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6, "su": 7 }
+const DAY_SHORT_NAME_TO_LONG_NAME: { [key: string]: string } = { 
+    "mo": "Monday", "tu": "Tuesday", "we": "Wednesday", "th": "Thursday", 
+    "fr": "Friday", "sa": "Saturday", "su": "Sunday" 
+}
+
 function timeToDate(start: Date, end: Date): { days: number, hours: number, minutes: number } {
     const diffMs = (end.valueOf() - start.valueOf());
     const diffDays = Math.floor(diffMs / 86400000); // days
@@ -151,37 +156,76 @@ function timeToDate(start: Date, end: Date): { days: number, hours: number, minu
     }
 }
 
+export function hour24To12(num: number): string {
+    if (num > 12) {
+        return `${num-12}pm`;
+    }
+    return `${num}am`
+}
+
+export function openingHoursToDays(hours: OpeningHoursT): string[] {
+    const fdays: Array<[string,string]> = [];
+
+    if (typeof hours === "boolean") {
+        if (!hours) {
+            fdays.push([`All Days`, `Closed`])
+        } else {
+            fdays.push([`All Days`, `Open`])
+        }
+    }
+
+    for (const timeEntry of Object.entries(hours)) {
+        if (timeEntry == undefined)
+            continue
+        const [dayString, time] = timeEntry;
+
+        for (let i=0; i < dayString.length; i+=2) {
+            const day: string = dayString.slice(i, i+2).toLowerCase();
+            const day_full: string = DAY_SHORT_NAME_TO_LONG_NAME[day];
+
+            fdays.push([day_full, `${hour24To12(time[0])} to ${hour24To12(time[1])}`])
+        }
+    }
+
+    return fdays;
+}
+
 export function parseOpeningHours(now: Date, hours: OpeningHoursT): OpenInformationT {
     if (typeof hours === "boolean") {
-        return hours ? { open: true } : { open: false }
+        return hours ? { open: true, temporarilyClosed: false } : { open: false, temporarilyClosed: true }
     }
 
     const nowDay = now.getDay();
-    for (let [days, time] of Object.entries(hours)) {
+    for (const timeEntry of Object.entries(hours)) {
+        if (timeEntry === undefined) {
+            continue;
+        }
+
+        const [days, time] = timeEntry;
         for (let i=0; i < days.length; i+= 2) {
             const day: string = days.slice(i, i+2).toLowerCase();
             const day_number: number | undefined = DAY_SHORT_NAME_TO_DAY_NUMBER[day];
-            if (day_number && nowDay == day_number) {
+            if (day_number && nowDay == day_number && time !== undefined) {
                 const openingTime = time[0];
                 const closingTime = time[1];
 
-                let start = new Date(now);
+                const start = new Date(now);
                 start.setHours(openingTime, 0, 0, 0);
-                let end = new Date(now);
+                const end = new Date(now);
                 end.setHours(closingTime, 0, 0, 0);
 
                 if (now < start) {
                     const timeToOpen = timeToDate(now, start);
-                    return { open: false, from: timeToOpen }
+                    return { open: false, from: timeToOpen, temporarilyClosed: false }
                 } else if (now > end) {
-                    return { open: false }
+                    return { open: false, temporarilyClosed: false }
                 } else {
                     const timeToClose = timeToDate(now, end);
-                    return { open: true, till: timeToClose }
+                    return { open: true, till: timeToClose, temporarilyClosed: false }
                 }
             }
         }
     }
 
-    return { open: false };
+    return { open: false, temporarilyClosed: false };
 }

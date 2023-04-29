@@ -2,7 +2,7 @@
 	import { selectedSpace, userLocation } from '$lib/store';
 	import type { CityT, OpenInformationT, SpaceT } from '$lib/types';
 	import { scrollIntoCenterOnDoubleClick } from '$lib/usetils';
-	import { distanceToUser, getStarRating, parseOpeningHours } from '$lib/utils';
+	import { distanceToUser, getStarRating, openingHoursToDays, parseOpeningHours } from '$lib/utils';
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 	import '@splidejs/svelte-splide/css';
 	import { space } from 'svelte/internal';
@@ -126,19 +126,22 @@
 				{#if hours.from}
 				<span>Opens in {#if hours.from.hours > 0}{hours.from.hours} hrs & {' '}{/if}{hours.from.minutes} mins</span>
 				{:else}
-				<span>Temporarily closed for renovation</span>
+				{#if hours.temporarilyClosed}
+				<span>Ongoing Renovation</span>
+				{:else}
+				<span>Not Open Today</span>
+				{/if}
 				{/if}
 			{/if}
 			{:else}
-			<div class="absolute bg-primary-900 text-white rounded shadow px-3 py-2">
+			<div class="absolute bg-primary-900 text-white rounded shadow px-3 py-2 z-50 mr-8">
 				<ul>
-					<li>Monday: 9am – 5pm</li>
-					<li>Tuesday: 9am – 5pm</li>
-					<li>Wednesday: 9am – 5pm</li>
-					<li>Thursday: 9am – 5pm</li>
-					<li>Friday: 9am – 5pm</li>
-					<li>Saturday: 9am – 5pm</li>
-					<li>Sunday: 9am – 5pm</li>
+				{#each openingHoursToDays(location.openingHours) as [dayName, times]}
+					<li class="inline-flex w-full justify-between">
+						<span>{dayName}</span>
+						<span class="bg-primary-600 px-2">{times}</span>
+					</li>
+				{/each}
 				</ul>
 			</div>
 			{/if}
