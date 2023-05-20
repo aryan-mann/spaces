@@ -103,7 +103,7 @@ export function getStarRating(rating: number, max = 5, empty = 'â˜†', full = 'â˜
 }
 
 export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLocation: GeolocationStateT | null): Array<SpaceT> {
-    if (!spaces.length) {
+    if (!spaces?.length) {
         return []
     }
 

@@ -143,7 +143,10 @@
 			</div>
 			{/if}
 			<div class="flex justify-end flex-grow">
-				<div on:click={() => { infoPanelOpen = !infoPanelOpen; }} class="p-1 cursor-pointer hover:font-bold">ⓘ</div>
+				<div on:click={() => { 
+					// Temporarily disabled because information above is not updated based on the space yet 
+					// infoPanelOpen = !infoPanelOpen; 
+				}} class="p-1 cursor-pointer hover:font-bold">ⓘ</div>
 			</div>
 		</div>
         {#if location.tags}
@@ -151,8 +154,10 @@
         {#each location.tags as tag}
 			{#if typeof tag === "string"}
             <span class="tag">{tag}</span>
-			{:else}
-			<span class="tag detailed" on:click={() => { alert(tag.detail) }}>{tag.label}</span>
+			{:else if "url" in tag}
+			<span class="tag detailed" on:click={() => { window.open(tag.url, "_blank"); }}>{tag.label}</span>
+			{:else if "detail" in tag}
+			<span class="tag detailed" on:click={() => { alert(tag.detail); }}>{tag.label}</span>
 			{/if}
         {/each}
         </div>

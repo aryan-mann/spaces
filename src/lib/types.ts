@@ -46,10 +46,12 @@ export type OpeningHoursT = {
     [key: string]: number[] | undefined
 } | boolean;
 
+export type TagT = string | { label: string, detail: string } | { label: string, url: string };
+
 export interface SpaceT {
     name: string;
     city?: string;
-    type: string;
+    type: "Cafe" | "POPO" | "Park";
     images?: string[];
     openingHours: string | OpeningHoursT;
     description: string;
@@ -57,7 +59,7 @@ export interface SpaceT {
     address?: string;
     vetted?: boolean;
     featured?: boolean;
-    tags?: Array<string | { label: string, detail: string }>;
+    tags?: Array<TagT>;
     authorNote?: string;
     rating?: number;
 }

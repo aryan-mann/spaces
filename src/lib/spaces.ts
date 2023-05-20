@@ -12,6 +12,47 @@ const prepareSpaces = (citySlug: SupportedCity): MapperSpaceT => {
 }
 
 const sanFranciscoSpaces: Array<SpaceT> = [
+    // Kowloon
+    {
+        name: "Kowloon Tong Cafe",
+        type: "Cafe",
+        description: "Homey cafe serving sweet and savory Hong Kong-style snacks. Welcoming and open late, relax here with a crossword and mango sago.",
+        coordinates: coords(37.78150079175221, -122.46555062136345),
+        address: "393 7th Ave, San Francisco, CA 94118",
+        openingHours: {
+            "MoTuWeThFrSa": [17, 24],
+            "Su": [15, 24]
+        },
+        tags: [
+            "dessert", "asian", 
+            {
+                label: "website",
+                url: "http://www.kowloontongsf.com/"
+            }
+        ],
+        images: [
+            "kowloon_001.webp"
+        ],
+        vetted: true
+    },
+    // Velvet Raven
+    {
+        name: "The Velvet Raven",
+        type: "Cafe",
+        description: "A cute coffee shop located in a quaint part of South Park. Get away from the hustle of the city and enjoy coffee, chocolate, scones, and more!",
+        coordinates: coords(37.78093327276581, -122.39425942308144),
+        openingHours: {
+            "TuWeThFrSa": [11, 21],
+            "Su": [11, 18]
+        },
+        address: "155 S Park St A, San Francisco, CA 94107",
+        vetted: true,
+        rating: 5,
+        tags: ["coffee", "pastries", "quiet"],
+        images: [
+            "velvet-raven_002.webp",
+        ]
+    },
     // 235 2nd Street
     {
         name: "235 2nd Street",
@@ -76,10 +117,10 @@ const sanFranciscoSpaces: Array<SpaceT> = [
         tags: ["open late", "work friendly", "coffee", "paid", "desserts"],
         coordinates: coords(37.7809968, -122.400205),
         openingHours: {
-            MoTuWeTh: [6, 23],
-            Fr: [6, 24],
-            Sa: [7, 24],
-            Su: [7, 23]
+            MoTuWeTh: [6, 22],
+            Fr: [6, 23],
+            Sa: [7, 23],
+            Su: [7, 22]
         }
     },
     // 55 2nd Street
