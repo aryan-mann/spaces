@@ -1,14 +1,12 @@
 import type { CityT, CoordinateT, DistanceUnit, CityFilters, GeolocationStateT, SpaceDataT, SpaceT, SupportedCity, OpeningHoursT, OpenInformationT } from "./types";
 import type { Page } from "@sveltejs/kit";
 
-export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): string {
-    const distance_in_unit = distanceBetweenCoordinates(
+export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): { distance: number; unit: DistanceUnit; } {
+    return distanceBetweenCoordinates(
         { lat: userLocation.coords.latitude, lng: userLocation.coords.longitude },
         locationCoords,
         unit
     );
-
-    return `${Math.round(distance_in_unit.distance)} ${distance_in_unit.unit}`;
 }
 
 export function distanceBetweenCoordinates(coord1: CoordinateT, coord2: CoordinateT, unit: DistanceUnit = "ms"): { distance: number, unit: DistanceUnit } {

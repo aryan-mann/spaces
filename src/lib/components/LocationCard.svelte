@@ -6,6 +6,7 @@
 	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
 	import '@splidejs/svelte-splide/css';
 	import { space } from 'svelte/internal';
+	import Lightbox from './Lightbox.svelte';
 
 	export let location: SpaceT;
 
@@ -54,10 +55,11 @@
 	<div class="w-[300px] md:w-[450px] select-none cursor-grabbing">
 		<!-- Top buttons  -->
 		<div class="top-buttons-container grid grid-cols-3 gap-4 items-stretch justify-center mb-2">
-			<div class="flex bg-primary-100 items-center justify-center text-sm">
+			<div class="flex text-gray-800 rounded items-center justify-center text-sm">
 				<p>
 				{#if $userLocation?.location?.coords && location.coordinates}
-					{distanceToUser($userLocation.location, location.coordinates, 'ms')} away
+					{@const dist = distanceToUser($userLocation.location, location.coordinates, 'ms')}
+					🚶 {Math.round((dist.distance / 1.5)*0.0166667)} mins 🚶‍♀️
 				{:else if $userLocation.loading}
 					...
 				{:else}
@@ -67,44 +69,21 @@
 			</div>
 			<div class="flex items-center justify-center">
 				{#if location.rating}
-				<p>
+				<p class="text-secondary-600">
 					{getStarRating(location.rating)}
 				</p>
 				{/if}
 			</div>
-			<button class="px-2 py-1 bg-primary-300 rounded shadow hover:bg-primary-400" on:click={() => openInMaps()}>Navigate</button>
+			<button class="px-2 py-1 bg-secondary-600 text-white rounded shadow hover:bg-primary-400" on:click={() => openInMaps()}>
+				Navigate
+			</button>
 		</div>
 		{#if location.images && location.images.length > 0}
-			{#if location.images.length > 1}
-				<Splide
-					hasTrack={false}
-					class="location-image-slider"
-					aria-label={`Images of ${location.name}`}
-					options={{
-						gap: '1rem',
-						arrows: false,
-					}}
-				>
-					<SplideTrack>
-						{#each location.images as locImage (locImage)}
-							<SplideSlide>
-								<img
-									class="location-image"
-									alt={imageAlt}
-									src={`/images/${location.city}/${locImage}`}
-								/>
-							</SplideSlide>
-						{/each}
-					</SplideTrack>
-                    <ul class="pagination splide__pagination"></ul>
-				</Splide>
-			{:else}
-				<img
-					class="location-image"
-					alt={imageAlt}
-					src={`/images/${location.city}/${location.images[0]}`}
-				/>
-			{/if}
+			<Lightbox 
+				images={location.images.map(x => `/images/${location.city}/${x}`)}
+				mainImageClass="rounded max-h-48 w-full object-cover shadow"
+				lightboxImageClass="rounded-lg shadow-black"
+			/>
 		{:else}
 			<img class="location-image" alt={imageAlt} src="https://picsum.photos/seed/picsum/600/450" />
 		{/if}
@@ -197,7 +176,7 @@
         }
 
 		.location-image {
-			@apply mb-4 h-32 md:h-52 w-full rounded shadow object-cover;
+			@apply mb-4 h-96 md:h-52 w-full rounded shadow object-cover;
 		}
 	}
 </style>

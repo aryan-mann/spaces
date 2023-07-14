@@ -11,7 +11,7 @@ const prepareSpaces = (citySlug: SupportedCity): MapperSpaceT => {
     }
 }
 
-const sanFranciscoSpaces: Array<SpaceT> = [
+export const sanFranciscoSpaces: Array<SpaceT> = [
     // Kowloon
     {
         name: "Kowloon Tong Cafe",
@@ -682,8 +682,8 @@ const sanFranciscoSpaces: Array<SpaceT> = [
             lng: -122.396536
         }
     }
-];
+].map(prepareSpaces(SupportedCity.SAN_FRANCISCO));
 
 export default [
-    ...(sanFranciscoSpaces.map(prepareSpaces(SupportedCity.SAN_FRANCISCO)))
+    ...sanFranciscoSpaces
 ];
