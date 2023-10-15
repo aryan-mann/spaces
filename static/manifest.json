@@ -2,14 +2,14 @@
     "name": "OurSpac.es",
     "description": "OurSpac.es is a collection of spaces that can act as third places for you! Parks, cafes, community spaces, and more!",
     "short_name": "OurSpac.es",
-    "display": "fullscreen",
+    "display": "standalone",
     "background_color": "#343333",
     "theme_color": "#fd8700",
     "start_url": "/",
     "orientation": "portrait",
     "icons": [
         {
-            "src": "/images/bg-safe-logo512.png",
+            "src": "/images/logo512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
