@@ -18,7 +18,6 @@
 
 		navigator.geolocation.getCurrentPosition(
 			(pos) => {
-				console.log(`Found location: ${pos}`)
 				setTimeout(() => {
 					$userLocation.location = pos;
 					$userLocation.loading = false;
@@ -26,7 +25,6 @@
 				}, ARTIFICIAL_DELAY);
 			},
 			(err) => {
-				console.log(`Unable to get location: ${err}`)
 				$userLocation.loading = false;
 				$userLocation.location = null;
 				$userLocation.errorMessage = `Unable to get location: ${err.message}`;
@@ -37,6 +35,7 @@
 
 	onMount(() => {
 		queryLocation();
+		$userLocation.refreshCoords = refreshCoords;
 	});
 </script>
 

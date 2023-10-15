@@ -115,7 +115,7 @@ export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLo
             return false;
         }
 
-        if (filters.showOnlyOpen && typeof space.openingHours !== "string" && !parseOpeningHours(now, space.openingHours).open) {
+        if (filters.showOnlyOpen && getLocationOpenInformation(now, space).status !== "open") {
             return false;
         }
 
@@ -135,7 +135,7 @@ export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLo
     return spaces;
 }
 
-const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6, "su": 7 }
+const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "su": 0, "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6 }
 function timeToDate(start: Date, end: Date): { days: number, hours: number, minutes: number } {
     const diffMs = (end.valueOf() - start.valueOf());
     const diffDays = Math.floor(diffMs / 86400000); // days
@@ -149,17 +149,26 @@ function timeToDate(start: Date, end: Date): { days: number, hours: number, minu
     }
 }
 
-export function parseOpeningHours(now: Date, hours: OpeningHoursT): OpenInformationT {
-    if (typeof hours === "boolean") {
-        return hours ? { open: true } : { open: false }
+export function getLocationOpenInformation(now: Date, location: SpaceT): OpenInformationT {
+    if (location.openingHours === "always open") {
+        return { status: "open" }
+    }
+    if (location.openingHours === "closed") {
+        return { status: "permanently closed" }
+    }
+    if (location.openingHours === "temporarily closed") {
+        return { status: "temporarily closed"}
     }
 
+    // Invariant: We have an space that is sometimes open
+
     const nowDay = now.getDay();
-    for (let [days, time] of Object.entries(hours)) {
+    for (let [days, time] of Object.entries(location.openingHours)) {
         for (let i=0; i < days.length; i+= 2) {
             const day: string = days.slice(i, i+2).toLowerCase();
             const day_number: number | undefined = DAY_SHORT_NAME_TO_DAY_NUMBER[day];
-            if (day_number && nowDay == day_number) {
+
+            if (day_number !== undefined && nowDay === day_number) {
                 const openingTime = time[0];
                 const closingTime = time[1];
 
@@ -170,16 +179,16 @@ export function parseOpeningHours(now: Date, hours: OpeningHoursT): OpenInformat
 
                 if (now < start) {
                     const timeToOpen = timeToDate(now, start);
-                    return { open: false, from: timeToOpen }
+                    return { status: "closed", from: timeToOpen }
                 } else if (now > end) {
-                    return { open: false }
+                    return { status: "closed" }
                 } else {
                     const timeToClose = timeToDate(now, end);
-                    return { open: true, till: timeToClose }
+                    return { status: "open", till: timeToClose }
                 }
             }
         }
     }
 
-    return { open: false };
+    return { status: "closed" }
 }

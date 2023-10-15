@@ -26,6 +26,7 @@ export interface GeolocationStateT {
 	loading: boolean;
 	location: GeolocationPosition | null;
 	errorMessage: string | null;
+    refreshCoords: () => void;
 }
 
 export interface SpaceDataT {
@@ -43,21 +44,35 @@ export interface CityT {
 }
 
 export type OpeningHoursT = {
-    [key: string]: number[] | undefined
-} | boolean;
+    [key: string]: number[]
+} | "always open" | "temporarily closed" | "closed";
 
-export type TagT = string | { label: string, detail: string } | { label: string, url: string };
+
+export type DetailTagT = { label: string, detail: string };
+export type UrlTagT = { label: string, url: string };
+export type TagT = string | DetailTagT | UrlTagT;
+
+export const IsDetailTag = (item: any): item is DetailTagT => {
+    return 'label' in item && 'detail' in item;
+}
+export const IsUrlTag = (item: any): item is UrlTagT => {
+    return 'label' in item && 'url' in item;
+}
+
+type Location = {
+    address: string;
+    coordinates: CoordinateT;
+}
 
 export interface SpaceT {
     name: string;
     city?: string;
     type: "Cafe" | "POPO" | "Park";
-    images?: string[];
-    openingHours: string | OpeningHoursT;
+    images: string[];
+    openingHours: OpeningHoursT;
     description: string;
-    coordinates: CoordinateT;
-    address?: string;
-    vetted?: boolean;
+    location: Array<Location>;
+    vetted: boolean;
     featured?: boolean;
     tags?: Array<TagT>;
     authorNote?: string;
@@ -71,7 +86,7 @@ export type DurationT = {
 }
 
 export type OpenInformationT = {
-    open: boolean,
+    status: "open" | "closed" | "temporarily closed" | "permanently closed",
     from?: DurationT,
     till?: DurationT 
 }

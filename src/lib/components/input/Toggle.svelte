@@ -5,7 +5,7 @@
     export let display: { checked: string, unchecked: string } = { checked: '✓', unchecked: '✗' }
 </script>
 
-<label class="toggle inline-flex items-center bg-primary-100 py-1 px-2 rounded shadow">
+<label class="toggle inline-flex items-center bg-primary-100 py-1 px-2 shadow">
     <input type="checkbox" class="sr-only" bind:checked={checked}>
     <span class="select-none whitespace-nowrap">{label}</span>
     <div class="px-4 py-[1px] rounded ml-3 transition-colors duration-500 select-none" data-checked={checked}>

@@ -137,21 +137,25 @@
     onDestroy(() => {
         map?.remove();
     })
+
+    function refreshCoords() {
+        $userLocation?.refreshCoords();
+    }
 </script>
 
 
 <div class="map">
     <div bind:this={mapElement}></div>
-    <div class="absolute right-2 top-2 z-[500]">
-        <p class="px-1 py-1 bg-primary-900 opacity-25 text-white rounded">
+    <div class="absolute right-2 top-4 z-[1200]">
+        <p on:click={refreshCoords} on:keydown={refreshCoords} class="cursor-pointer px-1 py-1 bg-primary-900 opacity-60 hover:opacity-70 active:opacity-90 text-white rounded">
         {#if $userLocation.geoLocationAvailable === false}
         Location N/A
         {:else if $userLocation.loading}
         Locating..
         {:else if $userLocation.location}
         Located
-        {:else}
-        Beep boop..
+        {:else if ($userLocation?.errorMessage?.length || 0) > 0}
+        You denied location access
         {/if}
         </p>
     </div>

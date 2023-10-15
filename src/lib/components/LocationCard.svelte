@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { selectedSpace, userLocation } from '$lib/store';
-	import type { CityT, OpenInformationT, SpaceT } from '$lib/types';
+	import { IsUrlTag, type CityT, type OpenInformationT, type SpaceT, IsDetailTag } from '$lib/types';
 	import { scrollIntoCenterOnDoubleClick } from '$lib/usetils';
-	import { distanceToUser, getStarRating, parseOpeningHours } from '$lib/utils';
-	import { Splide, SplideSlide, SplideTrack } from '@splidejs/svelte-splide';
+	import {  getLocationOpenInformation } from '$lib/utils';
 	import '@splidejs/svelte-splide/css';
-	import { space } from 'svelte/internal';
 	import Lightbox from './Lightbox.svelte';
 
 	export let location: SpaceT;
+	export let spaceChainNumber: number = 0;
 
 	let rootDiv: HTMLElement | null = null;
 	let isSelected = false;
@@ -19,9 +18,9 @@
 		}
 	}
 
-	const imageAlt = `Space at ${location?.address || location.name}`;
+	const imageAlt = `Space at ${location?.location[spaceChainNumber].address || location.name}`;
 	const currentTime = new Date();
-	const hours: OpenInformationT = parseOpeningHours(currentTime, location.openingHours);
+	const hours: OpenInformationT = getLocationOpenInformation(currentTime, location);
 
 	let infoPanelOpen: boolean = false;
 
@@ -32,13 +31,13 @@
 
 		const userLoc = $userLocation.location?.coords;
 		if (!userLoc) {
-			const approxId = `${location.name}, ${location.address}`
+			const approxId = `${location.name}, ${location.location[spaceChainNumber].address}`
 			window.open(`https://www.google.com/maps?q=${esc(approxId)}`, "_blank");
 			return;
 		}
 
 		const travelMode: 'driving' | 'walking' | 'bicycling' | 'transit' = 'transit';
-		const url = `https://www.google.com/maps/dir/?api=1&travelmode=${travelMode}&origin=${userLoc.latitude},${userLoc.longitude}&destination=${location.coordinates.lat},${location.coordinates.lng}`
+		const url = `https://www.google.com/maps/dir/?api=1&travelmode=${travelMode}&origin=${userLoc.latitude},${userLoc.longitude}&destination=${location.location[spaceChainNumber].coordinates.lat},${location.location[spaceChainNumber].coordinates.lng}`
 		window.open(url, "_blank");
 	}
 </script>
@@ -53,7 +52,8 @@
 	use:scrollIntoCenterOnDoubleClick
 >
 	<div class="w-[300px] md:w-[450px] select-none cursor-grabbing">
-		<!-- Top buttons  -->
+		<p class="text-sm md:text-md mb-2 text-center">{location.location[spaceChainNumber].address}</p>
+		<!-- Top buttons 
 		<div class="top-buttons-container grid grid-cols-3 gap-4 items-stretch justify-center mb-2">
 			<div class="flex text-gray-800 rounded items-center justify-center text-sm">
 				<p>
@@ -67,49 +67,71 @@
 				{/if}
 				</p>
 			</div>
-			<div class="flex items-center justify-center">
-				{#if location.rating}
-				<p class="text-secondary-600">
-					{getStarRating(location.rating)}
-				</p>
-				{/if}
-			</div>
-			<button class="px-2 py-1 bg-secondary-600 text-white rounded shadow hover:bg-primary-400" on:click={() => openInMaps()}>
+			<button class="px-2 py-1 bg-secondary-600 text-white rounded shadow max-w-[100px] hover:bg-primary-400" on:click={() => openInMaps()}>
 				Navigate
 			</button>
-		</div>
+			<div class="flex items-center justify-center">
+				{#if location.rating}
+				<div>
+					{#each getStarRating(location.rating).split('') as c}
+					<span class="text-yellow-600">{c}</span>
+					{/each}
+				</div>
+				{/if}
+			</div>
+		</div> -->
 		{#if location.images && location.images.length > 0}
 			<Lightbox 
 				images={location.images.map(x => `/images/${location.city}/${x}`)}
-				mainImageClass="rounded max-h-48 w-full object-cover shadow"
+				mainImageClass="rounded max-h-52 w-full object-cover shadow"
 				lightboxImageClass="rounded-lg shadow-black"
 			/>
 		{:else}
 			<img class="location-image" alt={imageAlt} src="https://picsum.photos/seed/picsum/600/450" />
 		{/if}
-		<div class="flex justify-between items-center mt-2">
+		<div class="flex justify-between items-center mt-4">
 			<p class="text-lg md:text-2xl mb-1">{location.name}</p>
+			<p class="text-lg">#{spaceChainNumber+1}</p>
 		</div>
-        <p class="text-sm md:text-lg mb-2">{location.description}</p>
+        <p class="text-sm md:text-base mb-4">{location.description}</p>
 		<div class="flex relative gap-3 items-center">
 			{#if !infoPanelOpen}
-			{#if hours.open}
-				<span class="text-sm md:text-base px-2 py-1 bg-green-700 text-white rounded">Open</span>
+			{#if hours.status === "open"}
+				<div class="flex justify-between items-center w-full">
+					<span class="text-sm md:text-base px-2 py-1 bg-green-700 text-white rounded">Open</span>
 				{#if hours.till}
-				<span>Closes in {#if hours.till.hours > 0}{hours.till.hours} hrs & {' '}{/if}{hours.till.minutes} mins</span>
+				<span>Closes in 
+					{#if hours.till.hours > 0}
+					{hours.till.hours} hrs & {' '}
+					{/if}
+					{#if hours.till.minutes > 0}
+					{hours.till.minutes} mins
+					{:else}
+					under a minute
+					{/if}
+				</span>
 				{:else}
 				<span>Always open</span>
 				{/if}
+				<button class="px-2 py-1 bg-primary-600 text-white rounded shadow max-w-[140px] hover:bg-primary-800" on:click={() => openInMaps()}>
+					Visit Space!
+				</button>
+				</div>
 			{:else}
-				<span class="text-sm md:text-base px-2 py-1 bg-red-700 text-white rounded">Closed</span>
-				{#if hours.from}
-				<span>Opens in {#if hours.from.hours > 0}{hours.from.hours} hrs & {' '}{/if}{hours.from.minutes} mins</span>
-				{:else}
-				<span>Temporarily closed for renovation</span>
-				{/if}
+				<div class="flex justify-between items-center w-full">
+					<span class={`text-sm md:text-base px-2 py-1 ${hours.from ? 'bg-yellow-600': 'bg-red-700'} text-white rounded`}>Closed</span>
+					{#if hours.from}
+					<span>Opens in {#if hours.from.hours > 0}{hours.from.hours} hrs & {' '}{/if}{hours.from.minutes} mins</span>
+					{:else}
+					<span>Opens tomorrow</span>
+					{/if}
+					<button class="px-2 py-1 bg-primary-600 text-white rounded shadow max-w-[140px] hover:bg-primary-800" on:click={() => openInMaps()}>
+						See Space!
+					</button>
+				</div>
 			{/if}
 			{:else}
-			<div class="absolute bg-primary-900 text-white rounded shadow px-3 py-2">
+		<!-- <div class="absolute bg-primary-900 text-white rounded shadow px-3 py-2">
 				<ul>
 					<li>Monday: 9am – 5pm</li>
 					<li>Tuesday: 9am – 5pm</li>
@@ -119,23 +141,23 @@
 					<li>Saturday: 9am – 5pm</li>
 					<li>Sunday: 9am – 5pm</li>
 				</ul>
-			</div>
+			</div> -->
 			{/if}
-			<div class="flex justify-end flex-grow">
+			<!-- <div class="flex justify-end flex-grow">
 				<div on:click={() => { 
 					// Temporarily disabled because information above is not updated based on the space yet 
 					// infoPanelOpen = !infoPanelOpen; 
 				}} class="p-1 cursor-pointer hover:font-bold">ⓘ</div>
-			</div>
+			</div> -->
 		</div>
         {#if location.tags}
         <div class="tags">
         {#each location.tags as tag}
 			{#if typeof tag === "string"}
             <span class="tag">{tag}</span>
-			{:else if "url" in tag}
+			{:else if IsUrlTag(tag)}
 			<span class="tag detailed" on:click={() => { window.open(tag.url, "_blank"); }}>{tag.label}</span>
-			{:else if "detail" in tag}
+			{:else if IsDetailTag(tag)}
 			<span class="tag detailed" on:click={() => { alert(tag.detail); }}>{tag.label}</span>
 			{/if}
         {/each}
@@ -146,7 +168,7 @@
 
 <style lang="scss">
 	.location-card {
-		@apply px-4 py-4 bg-blue-50 rounded border-black border-[1px] hover:bg-blue-100;
+		@apply px-4 py-4 bg-[#f9f8f3] border-black border-[1px] active:bg-[#fce2ae];
 
 		&[data-selected='false'] {
 			box-shadow: 10px 10px 0px -3px #343333;
@@ -176,7 +198,7 @@
         }
 
 		.location-image {
-			@apply mb-4 h-96 md:h-52 w-full rounded shadow object-cover;
+			@apply mb-4 h-52 w-full rounded shadow object-cover;
 		}
 	}
 </style>

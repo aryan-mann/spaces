@@ -1,7 +1,39 @@
 {
-    "name": "Spaces",
-    "short_name": "Spaces",
-    "display": "standalone",
+    "name": "OurSpac.es",
+    "description": "OurSpac.es is a collection of spaces that can act as third places for you! Parks, cafes, community spaces, and more!",
+    "short_name": "OurSpac.es",
+    "display": "fullscreen",
     "background_color": "#343333",
-    "theme_color": "#fd8700"
+    "theme_color": "#fd8700",
+    "start_url": "/",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/images/bg-safe-logo512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/images/logo512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot-wide.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Homescreen of OurSpac.es"
+        },
+        {
+            "src": "/images/screenshot-narrow.png",
+            "sizes": "720x1280",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Homescreen of OurSpac.es"
+        }
+    ]
 }
