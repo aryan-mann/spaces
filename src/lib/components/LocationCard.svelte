@@ -97,7 +97,7 @@
 		<div class="flex relative gap-3 items-center">
 			{#if !infoPanelOpen}
 			{#if hours.status === "open"}
-				<div class="flex justify-between items-center w-full">
+				<div class="flex justify-between items-center w-full flex-wrap gap-1">
 					<span class="text-sm md:text-base px-2 py-1 bg-green-700 text-white rounded">Open</span>
 				{#if hours.till}
 				<span>Closes in 
@@ -113,9 +113,6 @@
 				{:else}
 				<span>Always open</span>
 				{/if}
-				<button class="px-2 py-1 bg-primary-600 text-white rounded shadow max-w-[140px] hover:bg-primary-800" on:click={() => openInMaps()}>
-					Visit Space!
-				</button>
 				</div>
 			{:else}
 				<div class="flex justify-between items-center w-full">
@@ -125,9 +122,6 @@
 					{:else}
 					<span>Opens tomorrow</span>
 					{/if}
-					<button class="px-2 py-1 bg-primary-600 text-white rounded shadow max-w-[140px] hover:bg-primary-800" on:click={() => openInMaps()}>
-						See Space!
-					</button>
 				</div>
 			{/if}
 			{:else}
@@ -149,6 +143,11 @@
 					// infoPanelOpen = !infoPanelOpen; 
 				}} class="p-1 cursor-pointer hover:font-bold">ⓘ</div>
 			</div> -->
+		</div>
+		<div class="flex items-center justify-center mt-2">
+			<button class="px-2 py-1 bg-primary-600 text-white rounded shadow max-w-[140px] hover:bg-primary-800" on:click={() => openInMaps()}>
+				Visit Space!
+			</button>
 		</div>
         {#if location.tags}
         <div class="tags">
