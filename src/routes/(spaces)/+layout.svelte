@@ -1,6 +1,6 @@
 <script>
-	import '../app.scss';
-	import '../app.postcss';
+	import '../../app.scss';
+	import '../../app.postcss';
 	import 'leaflet/dist/leaflet.css';
 
 	import Header from '$lib/aspects/header.svelte';
