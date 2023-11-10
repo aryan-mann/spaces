@@ -38,7 +38,7 @@
     }
 </script>
 
-<div class="relative md:px-8 py-3">
+<div class="md:px-8 py-3 z-[2000] mt-20 flex w-screen">
 	<div class="filter-container flex gap-4 p-1 items-center overflow-x-auto">
 		<div class="boxxy active flex items-center justify-center">
 			{#if $currentUser === null}
@@ -59,6 +59,9 @@
 			{/if}
 		</div>
 		<div class="boxxy">
+			<input class="bg-transparent px-2" placeholder="filter space by name" type="text" bind:value={$cityFilters.spaceName} />
+		</div>
+		<div class="boxxy">
 			Found {spaces?.length || 0} Results
 		</div>
 		<Toggle label="Show Only Open" bind:checked={$cityFilters.showOnlyOpen} />
@@ -73,7 +76,7 @@
 
 <style lang="scss">
 	.filter-container {
-		@apply absolute bottom-2 z-[500] px-4 w-full overflow-x-auto md:max-w-[calc(100vw-4rem)];
+		@apply absolute left-0 flex items-center justify-center z-[500] w-full overflow-x-auto;
 	}
 	.boxxy {
 		@apply px-2 mr-2 bg-blue-50 py-1 border-b-2 w-full md:w-auto whitespace-nowrap;

@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 import type { CityFilters, GeolocationStateT, SpaceT } from "$lib/types";
 import type { User } from "firebase/auth";
 
-export const selectedSpace = writable<SpaceT|null>(null);
+export const selectedSpace = writable<{ space: SpaceT, location: number }|null>(null);
 
 const defaultUserLocation: GeolocationStateT = {
     geoLocationAvailable: null,
@@ -14,9 +14,10 @@ const defaultUserLocation: GeolocationStateT = {
 export const userLocation = writable<GeolocationStateT>(defaultUserLocation);
 
 const defaultCityFilters: CityFilters = {
-    showOnlyVetted: true,
-    showOnlyOpen: true,
-    spaceType: ''
+    showOnlyVetted: false,
+    showOnlyOpen: false,
+    spaceType: '',
+    spaceName: 'reveille',
 }
 export const cityFilters = writable<CityFilters>(defaultCityFilters)
 

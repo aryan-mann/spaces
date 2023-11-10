@@ -19,6 +19,7 @@ export type CityFilters = {
     showOnlyVetted: boolean;
     showOnlyOpen: boolean,
     spaceType: string;
+    spaceName: string;
 }
 
 export interface GeolocationStateT {

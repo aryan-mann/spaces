@@ -9,7 +9,9 @@
 	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
     export let spaces: Array<SpaceT> = [];
     export let mapLoaded: boolean = false;
-	export let onMarkerClicked: (marker: SpaceT) => void = (_) => {};
+	export let onMarkerClicked: (marker: SpaceT, location: number) => void = (_, __) => {};
+
+    const BASE_TILE_LAYER: string = 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg';
 
     let mapElement: HTMLElement | null = null;
     let map: LeafletMap;
@@ -25,24 +27,25 @@
         map = leaflet.map(mapElement!).setView([mapCenter.latitude, mapCenter.longitude], mapCenter.altitude);
 
         // Add a tile layer
-        leaflet.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+        leaflet.tileLayer(BASE_TILE_LAYER, {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         mapLoaded = true;
 
-        selectedSpace.subscribe((space) => {
-			if (!mapLoaded || !space)
+        selectedSpace.subscribe((item) => {
+			if (!mapLoaded || !item)
 				return;
 
-			const selectedMapMarker = mapMarkers[space.name];
+            const { space, location } = item;
+			const selectedMapMarker = mapMarkers[`${space.name}-${location}`];
 			if (lastSelectedMapMarker !== null) {
                 mapMarkerDeselected(lastSelectedMapMarker);
 			}
             mapMarkerSelected(selectedMapMarker.html);
 			lastSelectedMapMarker = selectedMapMarker.html;
 
-			map.flyTo(space.coordinates, 18);
+			map.flyTo(space.location[location].coordinates, 18);
 		})
 
         refreshMap();
@@ -63,28 +66,32 @@
         })
 
         updating = true;
-        for (let space of spaces) {
-            const markerHtml = spaceRepresentationOnMap(space);
-            const markerDivIcon = leaflet.divIcon({ 
-                html: markerHtml,
-                className: "space-marker",
-            });
-            const marker = leaflet.marker(space.coordinates, { 
-                title: space.name,
-                icon: markerDivIcon,
-                draggable: false 
-            })
-            marker.on("click", () => { markerClicked(space, marker, markerHtml);  })
+        for (const space of spaces) {
+            for (let i=0; i < space.location.length; i++) {
+                const markerHtml = spaceRepresentationOnMap(space, i);
+                const markerDivIcon = leaflet.divIcon({ 
+                    html: markerHtml,
+                    className: "space-marker",
+                });
 
-            mapMarkers[space.name] = { marker: marker, html: markerHtml };
-            marker.addTo(map);
+                const coords = space.location[i].coordinates;
+                const marker = leaflet.marker(coords, { 
+                    title: space.name,
+                    icon: markerDivIcon,
+                    draggable: false,
+                })
+
+                marker.on("click", () => { markerClicked(space, i, marker, markerHtml);  })
+                mapMarkers[`${space.name}-${i}`] = { marker: marker, html: markerHtml };
+                marker.addTo(map);
+            }
         }
 
         lastLoadedSpaces = [...spaces]
         updating = false;
     }
 
-    function markerClicked(space: SpaceT, marker: Marker, markerHtml: HTMLElement) {
+    function markerClicked(space: SpaceT, location: number, marker: Marker, markerHtml: HTMLElement) {
         if (lastSelectedMapMarker != null) {
 			mapMarkerDeselected(lastSelectedMapMarker);
 		}
@@ -94,9 +101,9 @@
 			lastSelectedMapMarker = markerHtml;
 		}
 
-        $selectedSpace = space;
-        map.flyTo(space.coordinates, 18)
-		onMarkerClicked(space);
+        $selectedSpace = { space: space, location: location };
+        map.flyTo(space.location[location].coordinates, 18)
+		onMarkerClicked(space, location);
 	}
 
     async function addUserMapMarker(state: GeolocationStateT) {
@@ -161,9 +168,8 @@
     </div>
 </div>
 
-<style>
-    @import 'leaflet/dist/leaflet.css';
+<style lang="scss">
     .map div {
-        @apply h-[350px] md:h-[650px];
+        @apply h-screen;
     }
 </style>

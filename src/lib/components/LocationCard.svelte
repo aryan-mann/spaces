@@ -12,7 +12,7 @@
 	let rootDiv: HTMLElement | null = null;
 	let isSelected = false;
 	$: {
-		isSelected = $selectedSpace === location;
+		isSelected = $selectedSpace?.space === location && $selectedSpace.location === spaceChainNumber;
 		if (isSelected && rootDiv) {
 			rootDiv.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 		}

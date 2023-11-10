@@ -15,7 +15,7 @@
 <svelte:head>
 	<title>ourspac.es | San Francisco</title>
 </svelte:head>
-<div>
+<div class="relative">
 	<GeoLocation />
 	<!-- Map component -->
 	<Map
@@ -24,10 +24,12 @@
 			$selectedSpace = m;
 		}}
 	/>
-	<!-- Filters -->
-	<Filters {spaces} />
-	<!-- Locations -->
-	<LocationList {spaces} />
+	<div class="absolute top-0 z-[5000]">
+		<!-- Filters -->
+		<Filters {spaces} />
+		<!-- Locations -->
+		<!-- <LocationList {spaces} /> -->
+	</div>
 </div>
 
 <style lang="scss">
@@ -44,4 +46,3 @@
 		}
 	}
 </style>
-

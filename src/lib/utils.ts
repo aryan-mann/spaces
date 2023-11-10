@@ -1,5 +1,15 @@
 import type { CityT, CoordinateT, DistanceUnit, CityFilters, GeolocationStateT, SpaceDataT, SpaceT, SupportedCity, OpeningHoursT, OpenInformationT } from "./types";
 import type { Page } from "@sveltejs/kit";
+import Fuse from 'fuse.js'
+import spaces from "./spaces";
+
+const spacesFuse = new Fuse(spaces, {
+    keys: [ "name" ],
+    distance: 1,
+    ignoreLocation: true,
+    isCaseSensitive: false,
+    threshold: 0.5
+})
 
 export function distanceToUser(userLocation: GeolocationPosition, locationCoords: CoordinateT, unit: DistanceUnit = "ms"): { distance: number; unit: DistanceUnit; } {
     return distanceBetweenCoordinates(
@@ -54,14 +64,14 @@ export function userRepresentationOnMap(state: GeolocationStateT): HTMLElement {
     return wrapper;
 }
 
-export function spaceRepresentationOnMap(space: SpaceT): HTMLElement {
+export function spaceRepresentationOnMap(space: SpaceT, id: number = 0): HTMLElement {
     const wrapper = document.createElement('div');
     wrapper.classList.add("map-marker");
     wrapper.setAttribute("data-type", space.type);
 
     const spaceName = document.createElement('p');
     spaceName.classList.add("space-name");
-    spaceName.innerText = space.name;
+    spaceName.innerText = `${space.name}`;
 
     const popoType = document.createElement('div');
     popoType.classList.add("space-type");
@@ -106,7 +116,12 @@ export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLo
     }
 
     const now = new Date();
-    spaces = spaces.filter((space) => {
+    let fullList = [...spaces];
+    if (filters.spaceName !== '') {
+        fullList = [...spacesFuse.search(filters.spaceName).map((x) => x.item)]
+    }
+
+    fullList = fullList.filter((space) => {
         if (filters.showOnlyVetted && !space.vetted){
             return false;
         }
@@ -122,17 +137,7 @@ export function filterSpaces(spaces: Array<SpaceT>, filters: CityFilters, userLo
         return true;
     });
 
-    spaces.sort((space1, space2) => {
-        if (userLocation?.location?.coords) {
-            const userCoords = { lat: userLocation.location.coords.latitude, lng: userLocation.location.coords.longitude };
-            const space1Distance = distanceBetweenCoordinates(space1.coordinates, userCoords).distance;
-            const space2Distance = distanceBetweenCoordinates(space2.coordinates, userCoords).distance;
-            return space1Distance - space2Distance;
-        }
-        return + (space1.name > space2.name);
-    });
-
-    return spaces;
+    return fullList;
 }
 
 const DAY_SHORT_NAME_TO_DAY_NUMBER: { [key: string]: number } = { "su": 0, "mo": 1, "tu": 2, "we": 3, "th": 4, "fr": 5, "sa": 6 }

@@ -30,7 +30,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
         openingHours: {
             "MoTuWeThFrSaSu": [7, 19]
         },
-        vetted: false,
+        vetted: true,
         tags: [
             "food", "good coffee", "no plugs", 
             {
