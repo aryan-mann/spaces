@@ -35,7 +35,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
             "food", "good coffee", "no plugs", 
             {
                 label: "wifi",
-                detail: "espress0"
+                detail: "Can be either 'espress0' or 'paradise'"
             }, "ample seating"
         ],
         images: []
