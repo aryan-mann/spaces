@@ -8,8 +8,15 @@ Each space is selected and displayed in the service of the goal of making commun
 
 ### Developing
 
-Clone the repository, install dependencies and use the `dev` script. For yarn, this would be `yarn && yarn dev`; for pnpm, we would `pnpm install && pnpm dev`; etc.
+Clone the repository, install dependencies and start the development server:
+
+```bash
+bun install
+bun run dev
+```
 
 ### Contributing
 
-For now: to add, edit, or remove spaces to the map, open a PR and edit the `spaces.ts` in the `src/lib` directory. Adding a UI + database is somewhere on the list of priorities but not too high.
+To add, edit, or remove spaces from the map, edit `/src/lib/spaces_sf.jsonc`. See [AGENTS.md](AGENTS.md) for detailed schema and contribution guidelines.
+
+Adding a UI + database is somewhere on the list of priorities but not too high.
