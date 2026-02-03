@@ -12,13 +12,20 @@
 		const currentLocation = getUserLocation();
 		if (currentLocation.loading) return;
 
-		updateUserLocation({ loading: true });
-		updateUserLocation({ geoLocationAvailable: 'geolocation' in navigator });
+		// Check if geolocation is available first
+		const isAvailable = 'geolocation' in navigator;
+		console.log('[GeoLocation] Starting location request, available:', isAvailable);
+		updateUserLocation({ loading: true, geoLocationAvailable: isAvailable });
 
-		if (!getUserLocation().geoLocationAvailable) return;
+		if (!isAvailable) {
+			console.log('[GeoLocation] Geolocation not available');
+			updateUserLocation({ loading: false });
+			return;
+		}
 
 		navigator.geolocation.getCurrentPosition(
 			(pos) => {
+				console.log('[GeoLocation] Got position:', pos.coords.latitude, pos.coords.longitude);
 				setTimeout(() => {
 					updateUserLocation({
 						location: pos,
@@ -28,13 +35,44 @@
 				}, ARTIFICIAL_DELAY);
 			},
 			(err) => {
-				updateUserLocation({
-					loading: false,
-					location: null,
-					errorMessage: `Unable to get location: ${err.message}`
-				});
+				console.log('[GeoLocation] Error:', err.code, err.message);
+				// If high accuracy fails, try without it
+				if (err.code === 3) {
+					console.log('[GeoLocation] Trying fallback without high accuracy...');
+					navigator.geolocation.getCurrentPosition(
+						(pos) => {
+							console.log(
+								'[GeoLocation] Fallback success:',
+								pos.coords.latitude,
+								pos.coords.longitude
+							);
+							setTimeout(() => {
+								updateUserLocation({
+									location: pos,
+									loading: false,
+									errorMessage: null
+								});
+							}, ARTIFICIAL_DELAY);
+						},
+						(err2) => {
+							console.log('[GeoLocation] Fallback failed:', err2.code, err2.message);
+							updateUserLocation({
+								loading: false,
+								location: null,
+								errorMessage: err2.message || 'Location access denied'
+							});
+						},
+						{ enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+					);
+				} else {
+					updateUserLocation({
+						loading: false,
+						location: null,
+						errorMessage: err.message || 'Location access denied'
+					});
+				}
 			},
-			{ enableHighAccuracy: true, timeout: 10000 }
+			{ enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
 		);
 	}
 
@@ -43,11 +81,3 @@
 		updateUserLocation({ refreshCoords });
 	});
 </script>
-
-<slot
-	location={getUserLocation().location}
-	loading={getUserLocation().loading}
-	errorMessage={getUserLocation().errorMessage}
-	geolocationAvailable={getUserLocation().geoLocationAvailable}
-	{refreshCoords}
-/>

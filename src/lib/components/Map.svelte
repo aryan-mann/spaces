@@ -134,7 +134,21 @@
 	// Handle user location updates
 	$effect(() => {
 		const state = getUserLocation();
-		if (!isMapReady || !map || !state?.location?.coords || state.loading) return;
+		console.log('[Map] Location effect triggered:', {
+			isMapReady,
+			hasMap: !!map,
+			hasLocation: !!state?.location?.coords,
+			loading: state.loading
+		});
+		if (!isMapReady || !map || !state?.location?.coords || state.loading) {
+			console.log('[Map] Skipping marker update - conditions not met');
+			return;
+		}
+		console.log(
+			'[Map] Adding user marker at:',
+			state.location.coords.latitude,
+			state.location.coords.longitude
+		);
 
 		if (userMarker) {
 			userMarker.remove();
@@ -205,22 +219,6 @@
 
 <div class="map">
 	<div bind:this={mapElement} class="w-full h-screen"></div>
-	<div class="absolute right-2 top-4 z-[1200]">
-		<button
-			onclick={refreshCoords}
-			class="cursor-pointer px-1 py-1 bg-primary-900 opacity-60 hover:opacity-70 active:opacity-90 text-white rounded"
-		>
-			{#if getUserLocation().geoLocationAvailable === false}
-				Location N/A
-			{:else if getUserLocation().loading}
-				Locating..
-			{:else if getUserLocation().location}
-				Located
-			{:else if (getUserLocation()?.errorMessage?.length || 0) > 0}
-				You denied location access
-			{/if}
-		</button>
-	</div>
 </div>
 
 <style>

@@ -1,0 +1,37 @@
+name = "spaces"
+main = ".svelte-kit/cloudflare/_worker.js"
+compatibility_date = "2025-02-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static assets configuration for SvelteKit adapter-cloudflare
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
+
+# Local development settings
+[dev]
+port = 8787
+
+# Production custom domain
+[[routes]]
+pattern = "ourspac.es"
+custom_domain = true
+
+# Environment variables
+[vars]
+# Add your Firebase config here
+# FIREBASE_API_KEY = "your-api-key"
+# FIREBASE_AUTH_DOMAIN = "your-auth-domain"
+# FIREBASE_PROJECT_ID = "your-project-id"
+
+# Secrets (use `wrangler secret put SECRET_NAME` to set these)
+# [secrets]
+# FIREBASE_API_KEY
+# FIREBASE_AUTH_DOMAIN
+# FIREBASE_PROJECT_ID
+
+# Build configuration
+[build]
+command = "bun run build"
+cwd = "."
+watch_dir = "src"

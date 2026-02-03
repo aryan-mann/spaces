@@ -4,6 +4,7 @@
 		getCityFilters,
 		getCurrentUser,
 		getGlobalStore,
+		getUserLocation,
 		setCurrentUser,
 		updateCityFilters
 	} from '$lib/store.svelte';
@@ -47,51 +48,69 @@
 		setCurrentUser(null);
 	}
 
+	function refreshLocation() {
+		const userLoc = getUserLocation();
+		if (userLoc.refreshCoords) {
+			userLoc.refreshCoords();
+		}
+	}
+
 	const currentUser = $derived(getCurrentUser());
 	const cityFilters = $derived(getCityFilters());
+	const userLocation = $derived(getUserLocation());
+
+	const locationEmoji = $derived.by(() => {
+		if (userLocation.geoLocationAvailable === false) {
+			return '🚫';
+		}
+		if (userLocation.loading) {
+			return '📡';
+		}
+		if (userLocation.location) {
+			return '🎯';
+		}
+		if (userLocation.errorMessage) {
+			return '❓';
+		}
+		return '📍';
+	});
+
+	const locationTitle = $derived.by(() => {
+		if (userLocation.geoLocationAvailable === false) {
+			return 'Location not available';
+		}
+		if (userLocation.loading) {
+			return 'Locating...';
+		}
+		if (userLocation.location) {
+			return 'Located';
+		}
+		if (userLocation.errorMessage) {
+			return 'Unable to find you';
+		}
+		return 'Get location';
+	});
 </script>
 
 <div class="md:px-8 py-3 z-[2000] mt-20 flex w-screen">
-	<div class="filter-container flex gap-4 p-1 items-center overflow-x-auto">
-		<div class="boxxy active flex items-center justify-center">
-			{#if currentUser === null}
-				<button
-					class="flex items-center justify-center"
-					onclick={async () => {
-						await loginWithGoogle();
-					}}
-				>
-					<img class="h-6 w-auto" alt="" src="/images/logo-google.png" />
-					<p class="mx-2">Sign In</p>
-				</button>
-			{:else}
-				<button
-					class="flex items-center justify-center px-1"
-					onclick={async () => {
-						await logOut();
-					}}
-				>
-					<img
-						class="rounded-full h-6 duration-500 w-auto mr-2"
-						src={currentUser.photoURL}
-						alt=""
-					/>
-					<p>Logout <b>{currentUser.displayName?.split(' ')[0]}</b>?</p>
-				</button>
-			{/if}
-		</div>
+	<div class="filter-container flex flex-wrap gap-4 p-1 items-center">
 		<div class="boxxy">
 			<input
 				class="bg-transparent px-2"
-				placeholder="filter space by name"
+				placeholder="filter from {spaces?.length || 0} spaces"
 				type="text"
 				value={cityFilters.spaceName}
 				oninput={(e) => updateCityFilters({ spaceName: e.currentTarget.value })}
 			/>
 		</div>
-		<div class="boxxy">
-			Found {spaces?.length || 0} Results
-		</div>
+		<button
+			class="boxxy cursor-pointer"
+			onclick={refreshLocation}
+			title={locationTitle}
+			disabled={userLocation.loading}
+		>
+			{locationEmoji}
+		</button>
 		<Toggle
 			label="Show Only Open"
 			checked={cityFilters.showOnlyOpen}
