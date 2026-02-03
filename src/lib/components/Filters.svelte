@@ -93,10 +93,10 @@
 </script>
 
 <div class="md:px-8 py-3 z-[2000] mt-20 flex w-screen">
-	<div class="filter-container flex flex-wrap gap-4 p-1 items-center">
-		<div class="boxxy">
+	<div class="filter-container grid grid-cols-6 lg:flex gap-4 p-1 items-center px-4 lg:px-0">
+		<div class="boxxy col-span-5 order-2 lg:order-1">
 			<input
-				class="bg-transparent px-2"
+				class="bg-transparent px-2 w-full"
 				placeholder="filter from {spaces?.length || 0} spaces"
 				type="text"
 				value={cityFilters.spaceName}
@@ -104,32 +104,38 @@
 			/>
 		</div>
 		<button
-			class="boxxy cursor-pointer"
+			class="boxxy cursor-pointer !w-12 flex-shrink-0 flex items-center justify-center col-span-1 order-1 lg:order-2"
 			onclick={refreshLocation}
 			title={locationTitle}
 			disabled={userLocation.loading}
 		>
 			{locationEmoji}
 		</button>
-		<Toggle
-			label="Show Only Open"
-			checked={cityFilters.showOnlyOpen}
-			onchange={(checked) => updateCityFilters({ showOnlyOpen: checked })}
-		/>
-		{#if isDebugView(page)}
+		<div class="col-span-2 order-3 [&>*]:w-full">
 			<Toggle
-				label="Show Only Vetted"
-				checked={cityFilters.showOnlyVetted}
-				onchange={(checked) => updateCityFilters({ showOnlyVetted: checked })}
+				label="Open"
+				checked={cityFilters.showOnlyOpen}
+				onchange={(checked) => updateCityFilters({ showOnlyOpen: checked })}
 			/>
+		</div>
+		{#if isDebugView(page)}
+			<div class="col-span-2 order-4 [&>*]:w-full">
+				<Toggle
+					label="Show Only Vetted"
+					checked={cityFilters.showOnlyVetted}
+					onchange={(checked) => updateCityFilters({ showOnlyVetted: checked })}
+				/>
+			</div>
 		{/if}
-		<Dropdown label="Space Type" options={spaceOptions} />
+		<div class="col-span-4 order-5 [&>*]:w-full">
+			<Dropdown label="Space Type" options={spaceOptions} />
+		</div>
 	</div>
 </div>
 
 <style lang="scss">
 	.filter-container {
-		@apply absolute left-0 flex items-center justify-center z-[500] w-full overflow-x-auto;
+		@apply absolute left-0 items-center justify-center z-[500] w-full overflow-x-auto;
 	}
 	.boxxy {
 		@apply px-2 mr-2 bg-blue-50 py-1 border-b-2 w-full md:w-auto whitespace-nowrap;
