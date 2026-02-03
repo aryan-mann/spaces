@@ -1,15 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import json5 from 'vite-plugin-json5';
 
 export default defineConfig({
-	plugins: [
-		sveltekit()
-	],
-	css: {
-		preprocessorOptions: {
-			scss: {
-				additionalData: '@use "src/variables.scss" as *;'
-			}
-		}
-	}
+	plugins: [json5(), sveltekit()]
 });

@@ -1,98 +1,179 @@
 <script lang="ts">
-    import { onMount, onDestroy, afterUpdate } from 'svelte';
-    import type { GeolocationStateT, SpaceT } from '$lib/types';
-	import { mapMarkerDeselected, mapMarkerSelected, spaceRepresentationOnMap, userRepresentationOnMap } from '$lib/utils';
-    // @ts-ignore – Cannot import type declaration files
-    import type { Marker, Map as LeafletMap } from '@types/leaflet';
-	import { selectedSpace, userLocation } from '$lib/store';
+	import { onMount, onDestroy } from 'svelte';
+	import type { GeolocationStateT, SpaceT } from '$lib/types';
+	import {
+		mapMarkerDeselected,
+		mapMarkerSelected,
+		spaceRepresentationOnMap,
+		userRepresentationOnMap
+	} from '$lib/utils';
+	import { getSelectedSpace, setSelectedSpace, getUserLocation } from '$lib/store.svelte';
+	import maplibregl from 'maplibre-gl';
+	import 'maplibre-gl/dist/maplibre-gl.css';
 
-	export let mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 };
-    export let spaces: Array<SpaceT> = [];
-    export let mapLoaded: boolean = false;
-	export let onMarkerClicked: (marker: SpaceT, location: number) => void = (_, __) => {};
+	interface Props {
+		mapCenter?: { latitude: number; longitude: number; altitude: number };
+		spaces?: Array<SpaceT>;
+		mapLoaded?: boolean;
+		onMarkerClicked?: (marker: SpaceT, location: number) => void;
+	}
 
-    const BASE_TILE_LAYER: string = 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg';
+	let {
+		mapCenter = { latitude: 37.79, longitude: -122.40237, altitude: 17 },
+		spaces = [],
+		mapLoaded = $bindable(false),
+		onMarkerClicked = () => {}
+	}: Props = $props();
 
-    let mapElement: HTMLElement | null = null;
-    let map: LeafletMap;
-    let mapMarkers: { [key: string]: { marker: Marker, html: HTMLElement } } = {}
-    let userMarker: Marker | null = null;
-
-    let lastLoadedSpaces: SpaceT[] = [];
-    let updating: boolean = false;
-    let lastSelectedMapMarker: HTMLElement | null = null;
-    
-    onMount(async () => {
-        const leaflet = await import('leaflet');
-        map = leaflet.map(mapElement!).setView([mapCenter.latitude, mapCenter.longitude], mapCenter.altitude);
-
-        // Add a tile layer
-        leaflet.tileLayer(BASE_TILE_LAYER, {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        mapLoaded = true;
-
-        selectedSpace.subscribe((item) => {
-			if (!mapLoaded || !item)
-				return;
-
-            const { space, location } = item;
-			const selectedMapMarker = mapMarkers[`${space.name}-${location}`];
-			if (lastSelectedMapMarker !== null) {
-                mapMarkerDeselected(lastSelectedMapMarker);
+	// Use CartoDB Voyager tiles - clean, modern, free
+	const MAP_STYLE: maplibregl.StyleSpecification = {
+		version: 8,
+		sources: {
+			carto: {
+				type: 'raster',
+				tiles: [
+					'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+					'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+					'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+					'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+				],
+				tileSize: 256,
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 			}
-            mapMarkerSelected(selectedMapMarker.html);
+		},
+		layers: [
+			{
+				id: 'carto',
+				type: 'raster',
+				source: 'carto'
+			}
+		]
+	};
+
+	let mapElement: HTMLElement | null = $state(null);
+	let map: maplibregl.Map | null = null;
+	let mapMarkers: { [key: string]: { marker: maplibregl.Marker; html: HTMLElement } } = {};
+	let userMarker: maplibregl.Marker | null = null;
+	let lastSelectedMapMarker: HTMLElement | null = null;
+	let isMapReady = $state(false);
+
+	onMount(() => {
+		if (!mapElement) return;
+
+		map = new maplibregl.Map({
+			container: mapElement,
+			style: MAP_STYLE,
+			center: [mapCenter.longitude, mapCenter.latitude],
+			zoom: mapCenter.altitude,
+			attributionControl: false
+		});
+
+		map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+
+		map.on('load', () => {
+			isMapReady = true;
+			mapLoaded = true;
+		});
+	});
+
+	// Handle spaces updates - only when map is ready
+	$effect(() => {
+		if (!isMapReady || !map || spaces.length === 0) return;
+
+		// Clear existing markers
+		Object.values(mapMarkers).forEach(({ marker }) => marker.remove());
+		mapMarkers = {};
+
+		// Add new markers
+		for (const space of spaces) {
+			for (let i = 0; i < space.location.length; i++) {
+				const markerHtml = spaceRepresentationOnMap(space, i);
+				const coords = space.location[i].coordinates;
+
+				const marker = new maplibregl.Marker({
+					element: markerHtml,
+					anchor: 'bottom'
+				})
+					.setLngLat([coords.lng, coords.lat])
+					.addTo(map);
+
+				marker.getElement().addEventListener('click', () => {
+					markerClicked(space, i, markerHtml);
+				});
+
+				mapMarkers[`${space.name}-${i}`] = { marker, html: markerHtml };
+			}
+		}
+	});
+
+	// Handle selected space changes
+	$effect(() => {
+		const item = getSelectedSpace();
+		if (!isMapReady || !map || !item) return;
+
+		const { space, location } = item;
+		const selectedMapMarker = mapMarkers[`${space.name}-${location}`];
+
+		if (lastSelectedMapMarker !== null) {
+			mapMarkerDeselected(lastSelectedMapMarker);
+		}
+		if (selectedMapMarker) {
+			mapMarkerSelected(selectedMapMarker.html);
 			lastSelectedMapMarker = selectedMapMarker.html;
+		}
 
-			map.flyTo(space.location[location].coordinates, 18);
+		const coords = space.location[location].coordinates;
+		map.flyTo({
+			center: [coords.lng, coords.lat],
+			zoom: 18,
+			essential: true
+		});
+	});
+
+	// Handle user location updates
+	$effect(() => {
+		const state = getUserLocation();
+		if (!isMapReady || !map || !state?.location?.coords || state.loading) return;
+
+		if (userMarker) {
+			userMarker.remove();
+			userMarker = null;
+		}
+
+		const markerHtml = userRepresentationOnMap(state);
+		const userCoords = {
+			lat: state.location.coords.latitude,
+			lng: state.location.coords.longitude
+		};
+
+		userMarker = new maplibregl.Marker({
+			element: markerHtml,
+			anchor: 'bottom'
 		})
+			.setLngLat([userCoords.lng, userCoords.lat])
+			.addTo(map);
 
-        refreshMap();
-    })
+		userMarker.getElement().addEventListener('click', () => {
+			const loc = state.location?.coords;
+			if (loc && map) {
+				map.flyTo({
+					center: [loc.longitude, loc.latitude],
+					zoom: 15,
+					essential: true
+				});
+			}
+		});
 
-    afterUpdate(async () => {
-        await refreshMap();
-    })
+		map.flyTo({
+			center: [userCoords.lng, userCoords.lat],
+			zoom: 18,
+			essential: true
+		});
+	});
 
-    async function refreshMap() {
-        if (!mapLoaded || spaces === null || spaces.length <= 0 || updating || lastLoadedSpaces === spaces)
-            return;
-
-        const leaflet = await import('leaflet');
-        // Remove existing markers
-        Object.values(mapMarkers).forEach((marker) => {
-            marker.marker.removeFrom(map);
-        })
-
-        updating = true;
-        for (const space of spaces) {
-            for (let i=0; i < space.location.length; i++) {
-                const markerHtml = spaceRepresentationOnMap(space, i);
-                const markerDivIcon = leaflet.divIcon({ 
-                    html: markerHtml,
-                    className: "space-marker",
-                });
-
-                const coords = space.location[i].coordinates;
-                const marker = leaflet.marker(coords, { 
-                    title: space.name,
-                    icon: markerDivIcon,
-                    draggable: false,
-                })
-
-                marker.on("click", () => { markerClicked(space, i, marker, markerHtml);  })
-                mapMarkers[`${space.name}-${i}`] = { marker: marker, html: markerHtml };
-                marker.addTo(map);
-            }
-        }
-
-        lastLoadedSpaces = [...spaces]
-        updating = false;
-    }
-
-    function markerClicked(space: SpaceT, location: number, marker: Marker, markerHtml: HTMLElement) {
-        if (lastSelectedMapMarker != null) {
+	function markerClicked(space: SpaceT, location: number, markerHtml: HTMLElement) {
+		if (lastSelectedMapMarker != null) {
 			mapMarkerDeselected(lastSelectedMapMarker);
 		}
 
@@ -101,75 +182,52 @@
 			lastSelectedMapMarker = markerHtml;
 		}
 
-        $selectedSpace = { space: space, location: location };
-        map.flyTo(space.location[location].coordinates, 18)
+		setSelectedSpace(space, location);
+		if (map) {
+			const coords = space.location[location].coordinates;
+			map.flyTo({
+				center: [coords.lng, coords.lat],
+				zoom: 18,
+				essential: true
+			});
+		}
 		onMarkerClicked(space, location);
 	}
 
-    async function addUserMapMarker(state: GeolocationStateT) {
-        if (!mapLoaded || !($userLocation?.location?.coords) || $userLocation.loading)
-            return;
+	onDestroy(() => {
+		map?.remove();
+	});
 
-        if (userMarker) {
-            userMarker?.removeFrom(map);
-            userMarker = null;
-        }
-
-        const leaflet = await import('leaflet');
-        const markerHtml = userRepresentationOnMap($userLocation);
-        const markerDivIcon = leaflet.divIcon({ 
-            html: markerHtml,
-            className: "space-user-marker"
-        });
-        const userCoords = { lat: $userLocation.location.coords.latitude, lng: $userLocation.location.coords.longitude };
-        const marker = leaflet.marker(userCoords, { 
-            title: `You`,
-            icon: markerDivIcon,
-            draggable: false 
-        })
-        marker.on("click", () => {
-            const loc = $userLocation.location?.coords;
-            if (loc) {
-                map.flyTo({ lat: loc.latitude, lng: loc.longitude }, 15);
-            }
-        });
-
-        userMarker = marker;
-        marker.addTo(map);
-        map.flyTo(userCoords, 18, { animate: true })
-    }
-
-    $: addUserMapMarker($userLocation)
-
-    onDestroy(() => {
-        map?.remove();
-    })
-
-    function refreshCoords() {
-        $userLocation?.refreshCoords();
-    }
+	function refreshCoords() {
+		getUserLocation().refreshCoords?.();
+	}
 </script>
 
-
 <div class="map">
-    <div bind:this={mapElement}></div>
-    <div class="absolute right-2 top-4 z-[1200]">
-        <p on:click={refreshCoords} on:keydown={refreshCoords} class="cursor-pointer px-1 py-1 bg-primary-900 opacity-60 hover:opacity-70 active:opacity-90 text-white rounded">
-        {#if $userLocation.geoLocationAvailable === false}
-        Location N/A
-        {:else if $userLocation.loading}
-        Locating..
-        {:else if $userLocation.location}
-        Located
-        {:else if ($userLocation?.errorMessage?.length || 0) > 0}
-        You denied location access
-        {/if}
-        </p>
-    </div>
+	<div bind:this={mapElement} class="w-full h-screen"></div>
+	<div class="absolute right-2 top-4 z-[1200]">
+		<button
+			onclick={refreshCoords}
+			class="cursor-pointer px-1 py-1 bg-primary-900 opacity-60 hover:opacity-70 active:opacity-90 text-white rounded"
+		>
+			{#if getUserLocation().geoLocationAvailable === false}
+				Location N/A
+			{:else if getUserLocation().loading}
+				Locating..
+			{:else if getUserLocation().location}
+				Located
+			{:else if (getUserLocation()?.errorMessage?.length || 0) > 0}
+				You denied location access
+			{/if}
+		</button>
+	</div>
 </div>
 
-<style lang="scss">
-    .map div {
-        @apply h-screen;
-    }
+<style>
+	:global(.maplibregl-map) {
+		font-family: inherit;
+	}
+	:global(.maplibregl-ctrl-attrib) {
+		font-size: 10px;
+	}
 </style>

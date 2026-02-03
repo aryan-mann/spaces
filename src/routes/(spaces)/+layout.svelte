@@ -1,7 +1,6 @@
-<script>
+<script lang="ts">
 	import '../../app.scss';
 	import '../../app.postcss';
-	import 'leaflet/dist/leaflet.css';
 
 	import Header from '$lib/aspects/header.svelte';
 	import Footer from '$lib/aspects/footer.svelte';
@@ -10,7 +9,13 @@
 	import { initializeApp } from 'firebase/app';
 	import { getAuth } from 'firebase/auth';
 	import { onMount } from 'svelte';
-	import { globalStore } from '$lib/store';
+	import { setGlobalStore } from '$lib/store.svelte';
+
+	interface Props {
+		children: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const firebaseConfig = {
 		apiKey: 'AIzaSyAEjzI1GFrnM2He9TVEnS7ViGbvwnilSlo',
@@ -25,7 +30,7 @@
 	onMount(() => {
 		const app = initializeApp(firebaseConfig);
 		const auth = getAuth(app);
-		$globalStore = { app, auth };
+		setGlobalStore({ app, auth });
 	});
 </script>
 
@@ -35,11 +40,11 @@
 		name="viewport"
 		content="width=device-width, minimum-scale=1.0, maximum-scale = 1.0, user-scalable = no"
 	/>
-	<link rel="icon" type="image/x-icon" href="favicon.ico"/>
+	<link rel="icon" type="image/x-icon" href="favicon.ico" />
 	<link rel="manifest" href="/manifest.json" />
 	<meta name="description" content="Comforting spaces around you" />
 	<meta name="theme-color" content="#fd8700" />
 </svelte:head>
 <Header />
-<slot />
+{@render children()}
 <Footer />

@@ -2,14 +2,19 @@
 	import GeoLocation from '$lib/components/GeoLocation.svelte';
 	import LocationList from '$lib/components/LocationList.svelte';
 	import Map from '$lib/components/Map.svelte';
-	import { cityFilters, selectedSpace, userLocation } from '$lib/store';
-	import { SupportedCity, type CityT, type SpaceDataT } from '$lib/types';
+	import BottomSheet from '$lib/components/BottomSheet.svelte';
+	import { getCityFilters, getUserLocation, setSelectedSpace } from '$lib/store.svelte';
 	import Filters from '$lib/components/Filters.svelte';
 	import { filterSpaces } from '$lib/utils';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
-	$: spaces = filterSpaces(data.spaces, $cityFilters, $userLocation);
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
+
+	const spaces = $derived(filterSpaces(data.spaces, getCityFilters(), getUserLocation()));
 </script>
 
 <svelte:head>
@@ -17,20 +22,20 @@
 </svelte:head>
 <div class="relative">
 	<GeoLocation />
-	<!-- Map component -->
 	<Map
 		{spaces}
-		onMarkerClicked={(m) => {
-			$selectedSpace = m;
+		onMarkerClicked={(space, location) => {
+			setSelectedSpace(space, location);
 		}}
 	/>
 	<div class="absolute top-0 z-[5000]">
-		<!-- Filters -->
 		<Filters {spaces} />
 		<!-- Locations -->
 		<!-- <LocationList {spaces} /> -->
 	</div>
 </div>
+
+<BottomSheet />
 
 <style lang="scss">
 	.gl-status {

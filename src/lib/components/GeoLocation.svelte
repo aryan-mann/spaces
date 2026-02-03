@@ -1,33 +1,38 @@
 <script lang="ts">
-	import { userLocation } from '$lib/store';
+	import { getUserLocation, updateUserLocation } from '$lib/store.svelte';
 	import { onMount } from 'svelte';
 
 	const ARTIFICIAL_DELAY = 1000;
+
 	export const refreshCoords = () => {
 		queryLocation();
 	};
 
 	function queryLocation() {
-		if ($userLocation.loading) 
-			return;
+		const currentLocation = getUserLocation();
+		if (currentLocation.loading) return;
 
-		$userLocation.loading = true;
-		$userLocation.geoLocationAvailable = 'geolocation' in navigator;
-		if (!$userLocation.geoLocationAvailable) 
-			return;
+		updateUserLocation({ loading: true });
+		updateUserLocation({ geoLocationAvailable: 'geolocation' in navigator });
+
+		if (!getUserLocation().geoLocationAvailable) return;
 
 		navigator.geolocation.getCurrentPosition(
 			(pos) => {
 				setTimeout(() => {
-					$userLocation.location = pos;
-					$userLocation.loading = false;
-					$userLocation.errorMessage = null;
+					updateUserLocation({
+						location: pos,
+						loading: false,
+						errorMessage: null
+					});
 				}, ARTIFICIAL_DELAY);
 			},
 			(err) => {
-				$userLocation.loading = false;
-				$userLocation.location = null;
-				$userLocation.errorMessage = `Unable to get location: ${err.message}`;
+				updateUserLocation({
+					loading: false,
+					location: null,
+					errorMessage: `Unable to get location: ${err.message}`
+				});
 			},
 			{ enableHighAccuracy: true, timeout: 10000 }
 		);
@@ -35,10 +40,14 @@
 
 	onMount(() => {
 		queryLocation();
-		$userLocation.refreshCoords = refreshCoords;
+		updateUserLocation({ refreshCoords });
 	});
 </script>
 
-<slot location={$userLocation.location} loading={$userLocation.loading} 
-	errorMessage={$userLocation.errorMessage} geolocationAvailable={$userLocation.geoLocationAvailable}
-	{refreshCoords} />
+<slot
+	location={getUserLocation().location}
+	loading={getUserLocation().loading}
+	errorMessage={getUserLocation().errorMessage}
+	geolocationAvailable={getUserLocation().geoLocationAvailable}
+	{refreshCoords}
+/>

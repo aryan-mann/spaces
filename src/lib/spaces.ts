@@ -1,17 +1,4 @@
-import type { CoordinateT, SpaceT } from './types';
-import { SupportedCity } from './types';
-
-const coords = (lat: number, lng: number): CoordinateT => ({ lat: lat, lng: lng });
-
-type MapperSpaceT = (space: SpaceT) => SpaceT;
-const prepareSpaces = (citySlug: SupportedCity): MapperSpaceT => {
-	return (space: SpaceT) => {
-		space.city = citySlug;
-		return space;
-	};
-};
-
-export const sanFranciscoSpaces: Array<SpaceT> = [
+[
 	// Reveille
 	{
 		name: 'Cafe Réveille',
@@ -21,11 +8,11 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '201 steiner st, san francisco, ca 94117',
-				coordinates: coords(37.770987, -122.431942)
+				coordinates: { lat: 37.770987, lng: -122.431942 }
 			},
 			{
 				address: '1998 polk st, san francisco, ca 94109',
-				coordinates: coords(37.79496, -122.421605)
+				coordinates: { lat: 37.79496, lng: -122.421605 }
 			}
 		],
 		openingHours: {
@@ -53,7 +40,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '393 7th Ave, San Francisco, CA 94118',
-				coordinates: coords(37.78150079175221, -122.46555062136345)
+				coordinates: { lat: 37.78150079175221, lng: -122.46555062136345 }
 			}
 		],
 		openingHours: {
@@ -80,7 +67,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '155 S Park St A, San Francisco, CA 94107',
-				coordinates: coords(37.78093327276581, -122.39425942308144)
+				coordinates: { lat: 37.78093327276581, lng: -122.39425942308144 }
 			}
 		],
 		openingHours: {
@@ -101,7 +88,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '235 2nd St, San Francisco, CA 94105',
-				coordinates: coords(37.786128, -122.397315)
+				coordinates: { lat: 37.786128, lng: -122.397315 }
 			}
 		],
 		openingHours: {
@@ -121,7 +108,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '222 2nd St, San Francisco, CA 94105',
-				coordinates: coords(37.786539, -122.398474)
+				coordinates: { lat: 37.786539, lng: -122.398474 }
 			}
 		],
 		rating: 4,
@@ -145,7 +132,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '525 Market St, San Francisco, CA 94105',
-				coordinates: coords(37.790327, -122.399611)
+				coordinates: { lat: 37.790327, lng: -122.399611 }
 			}
 		],
 		vetted: true,
@@ -164,7 +151,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '370 4th St, San Francisco, CA 94107',
-				coordinates: coords(37.7809968, -122.400205)
+				coordinates: { lat: 37.7809968, lng: -122.400205 }
 			}
 		],
 		vetted: true,
@@ -188,7 +175,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '55 2nd St, San Francisco, CA 94105',
-				coordinates: coords(37.788676, -122.40049)
+				coordinates: { lat: 37.788676, lng: -122.40049 }
 			}
 		],
 		vetted: true,
@@ -216,7 +203,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Salesforce Park, 425 Mission St, San Francisco, CA 94105',
-				coordinates: coords(37.7897395, -122.3961656)
+				coordinates: { lat: 37.7897395, lng: -122.3961656 }
 			}
 		],
 		vetted: true,
@@ -236,7 +223,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '281 Page St, San Francisco, CA 94102',
-				coordinates: coords(37.773494, -122.425274)
+				coordinates: { lat: 37.773494, lng: -122.425274 }
 			}
 		],
 		type: 'Park',
@@ -255,7 +242,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Transamerica Redwood Park, 600 Montgomery St, San Francisco, CA 94111',
-				coordinates: coords(37.795222, -122.402332)
+				coordinates: { lat: 37.795222, lng: -122.402332 }
 			}
 		],
 		vetted: true,
@@ -271,7 +258,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '595 mission st, san francisco, ca 94105',
-				coordinates: coords(37.78808, -122.399144)
+				coordinates: { lat: 37.78808, lng: -122.399144 }
 			}
 		],
 		openingHours: {
@@ -301,7 +288,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '560 mission st, san francisco, ca 94105',
-				coordinates: coords(37.788709, -122.399154)
+				coordinates: { lat: 37.788709, lng: -122.399154 }
 			}
 		]
 	},
@@ -314,7 +301,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '50 Post St, San Francisco, CA 94104',
-				coordinates: coords(37.789531, -122.403041)
+				coordinates: { lat: 37.789531, lng: -122.403041 }
 			}
 		],
 		description:
@@ -358,7 +345,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '100 Larkin Street, San Francisco, CA 94102',
-				coordinates: coords(37.7793, -122.4158)
+				coordinates: { lat: 37.7793, lng: -122.4158 }
 			}
 		],
 		openingHours: {
@@ -392,7 +379,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Mission St between 3rd and 4th, San Francisco, CA 94103',
-				coordinates: coords(37.785, -122.4024)
+				coordinates: { lat: 37.785, lng: -122.4024 }
 			}
 		],
 		openingHours: 'always open',
@@ -418,7 +405,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '343 Sansome St, San Francisco, CA 94104',
-				coordinates: coords(37.7936, -122.4016)
+				coordinates: { lat: 37.7936, lng: -122.4016 }
 			}
 		],
 		openingHours: {
@@ -438,7 +425,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '555 California St, San Francisco, CA 94104',
-				coordinates: coords(37.7926, -122.4035)
+				coordinates: { lat: 37.7926, lng: -122.4035 }
 			}
 		],
 		openingHours: 'always open',
@@ -456,7 +443,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Dolores St & 19th St, San Francisco, CA 94114',
-				coordinates: coords(37.7605, -122.4271)
+				coordinates: { lat: 37.7605, lng: -122.4271 }
 			}
 		],
 		openingHours: 'always open',
@@ -474,7 +461,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Fort Mason Center for Arts & Culture, San Francisco, CA',
-				coordinates: coords(37.8052, -122.4321)
+				coordinates: { lat: 37.8052, lng: -122.4321 }
 			}
 		],
 		openingHours: {
@@ -496,7 +483,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '550 37th Avenue, San Francisco, CA 94121',
-				coordinates: coords(37.7798, -122.4975)
+				coordinates: { lat: 37.7798, lng: -122.4975 }
 			}
 		],
 		openingHours: {
@@ -522,7 +509,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '5075 3rd Street, San Francisco, CA 94124',
-				coordinates: coords(37.7328, -122.3915)
+				coordinates: { lat: 37.7328, lng: -122.3915 }
 			}
 		],
 		openingHours: {
@@ -547,7 +534,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '1727 Haight St, San Francisco, CA 94117',
-				coordinates: coords(37.7694, -122.4524)
+				coordinates: { lat: 37.7694, lng: -122.4524 }
 			}
 		],
 		openingHours: {
@@ -566,7 +553,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '601 Van Ness Ave, San Francisco, CA 94102',
-				coordinates: coords(37.7849, -122.4208)
+				coordinates: { lat: 37.7849, lng: -122.4208 }
 			}
 		],
 		openingHours: {
@@ -585,7 +572,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '2251 Chestnut St, San Francisco, CA 94123',
-				coordinates: coords(37.8006, -122.4382)
+				coordinates: { lat: 37.8006, lng: -122.4382 }
 			}
 		],
 		openingHours: {
@@ -606,7 +593,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: "250 O'Farrell St, San Francisco, CA 94102",
-				coordinates: coords(37.7869, -122.4084)
+				coordinates: { lat: 37.7869, lng: -122.4084 }
 			}
 		],
 		openingHours: 'always open',
@@ -624,7 +611,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '101 Post St, San Francisco, CA 94108',
-				coordinates: coords(37.7889, -122.4041)
+				coordinates: { lat: 37.7889, lng: -122.4041 }
 			}
 		],
 		openingHours: {
@@ -646,7 +633,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '600 Columbus Ave, San Francisco, CA 94133',
-				coordinates: coords(37.8008, -122.4103)
+				coordinates: { lat: 37.8008, lng: -122.4103 }
 			}
 		],
 		openingHours: 'always open',
@@ -663,7 +650,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: 'Steiner St & Hayes St, San Francisco, CA 94117',
-				coordinates: coords(37.7763, -122.4342)
+				coordinates: { lat: 37.7763, lng: -122.4342 }
 			}
 		],
 		openingHours: 'always open',
@@ -680,7 +667,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '333 Post St, San Francisco, CA 94108',
-				coordinates: coords(37.788, -122.4075)
+				coordinates: { lat: 37.788, lng: -122.4075 }
 			}
 		],
 		openingHours: 'always open',
@@ -697,7 +684,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '733 Kearny St, San Francisco, CA 94108',
-				coordinates: coords(37.7946, -122.4051)
+				coordinates: { lat: 37.7946, lng: -122.4051 }
 			}
 		],
 		openingHours: 'always open',
@@ -714,7 +701,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '1 Market St, San Francisco, CA 94105',
-				coordinates: coords(37.7945, -122.3954)
+				coordinates: { lat: 37.7945, lng: -122.3954 }
 			}
 		],
 		openingHours: 'always open',
@@ -731,7 +718,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '648 Commercial St, San Francisco, CA 94111',
-				coordinates: coords(37.7943, -122.4037)
+				coordinates: { lat: 37.7943, lng: -122.4037 }
 			}
 		],
 		openingHours: {
@@ -750,7 +737,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '150 California St, San Francisco, CA 94111',
-				coordinates: coords(37.7937, -122.3985)
+				coordinates: { lat: 37.7937, lng: -122.3985 }
 			}
 		],
 		openingHours: {
@@ -769,7 +756,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '101 California St, San Francisco, CA 94111',
-				coordinates: coords(37.793, -122.398)
+				coordinates: { lat: 37.793, lng: -122.398 }
 			}
 		],
 		openingHours: 'always open',
@@ -786,7 +773,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '1 Bush St, San Francisco, CA 94104',
-				coordinates: coords(37.7911, -122.4001)
+				coordinates: { lat: 37.7911, lng: -122.4001 }
 			}
 		],
 		openingHours: 'always open',
@@ -803,7 +790,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '400 Howard St, San Francisco, CA 94105',
-				coordinates: coords(37.7891, -122.3958)
+				coordinates: { lat: 37.7891, lng: -122.3958 }
 			}
 		],
 		openingHours: 'always open',
@@ -820,7 +807,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '505 Howard St, San Francisco, CA 94105',
-				coordinates: coords(37.7883, -122.3961)
+				coordinates: { lat: 37.7883, lng: -122.3961 }
 			}
 		],
 		openingHours: {
@@ -840,7 +827,7 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 		location: [
 			{
 				address: '1550 Evans Ave, San Francisco, CA 94124',
-				coordinates: coords(37.7476, -122.3874)
+				coordinates: { lat: 37.7476, lng: -122.3874 }
 			}
 		],
 		openingHours: {
@@ -1243,5 +1230,3 @@ export const sanFranciscoSpaces: Array<SpaceT> = [
 	//     }
 	// }
 ];
-
-export default [...sanFranciscoSpaces.map(prepareSpaces(SupportedCity.SAN_FRANCISCO))];
